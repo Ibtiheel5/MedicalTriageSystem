@@ -1,0 +1,142 @@
+﻿﻿
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Système Triage Médical</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- CSS personnalisé -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+            <div class="container">
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-heart-pulse me-2"></i>Système Triage Médical
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")"
+                               asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door me-1"></i>Accueil
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Triage" ? "active" : "")"
+                               asp-controller="Triage" asp-action="Index">
+                                <i class="bi bi-clipboard2-pulse me-1"></i>Triage
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Patients" ? "active" : "")"
+                               asp-controller="Patients" asp-action="Index">
+                                <i class="bi bi-people me-1"></i>Patients
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Doctors" ? "active" : "")"
+                               asp-controller="Doctors" asp-action="Index">
+                                <i class="bi bi-person-badge me-1"></i>Médecins
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "TriageResults" ? "active" : "")"
+                               asp-controller="TriageResults" asp-action="Index">
+                                <i class="bi bi-clipboard2-data me-1"></i>Résultats
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="navbar-text">
+                        <span id="currentDateTime" class="text-white"></span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid px-0">
+        @RenderBody()
+    </div>
+
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="mb-3">
+                        <i class="bi bi-heart-pulse me-2"></i>Système Triage Médical
+                    </h5>
+                    <p class="mb-0">Application de gestion et d'évaluation médicale</p>
+                    <small class="text-white-50">Version 1.0.0</small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h6 class="mb-3">Contact</h6>
+                    <p class="mb-1">
+                        <i class="bi bi-telephone me-2"></i>
+                        <a href="tel:+33123456789" class="text-white text-decoration-none">01 23 45 67 89</a>
+                    </p>
+                    <p class="mb-0">
+                        <i class="bi bi-envelope me-2"></i>
+                        <a href="mailto:contact@triagemedical.fr" class="text-white text-decoration-none">contact@triagemedical.fr</a>
+                    </p>
+                </div>
+            </div>
+            <hr class="bg-white my-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <small>&copy; 2024 - Système Triage Médical. Tous droits réservés.</small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-warning">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        Application de démonstration - Non destiné à un usage médical réel sans validation
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- JavaScript personnalisé -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Script pour la date et heure -->
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            const dateTimeString = now.toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('currentDateTime').textContent = dateTimeString;
+        }
+
+        updateDateTime();
+        setInterval(updateDateTime, 60000); // Mise à jour chaque minute
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,124 @@
+﻿@model List<MedicalTriageSystem.Models.Patient>
+
+@{
+    ViewData["Title"] = "Liste des Patients";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-6 fw-bold text-primary">
+            <i class="bi bi-people me-2"></i>Liste des Patients
+        </h1>
+        <a asp-controller="Triage" asp-action="Index" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>Nouveau Patient
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom</th>
+                                <th>Âge</th>
+                                <th>Genre</th>
+                                <th>Téléphone</th>
+                                <th>Date d'inscription</th>
+                                <th>Niveau Triage</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var patient in Model)
+                            {
+                                var triageLevel = patient.TriageResult?.Level ?? "Non évalué";
+                                var badgeClass = triageLevel switch
+                                {
+                                    "Urgent" => "danger",
+                                    "Élevé" => "warning",
+                                    "Normal" => "info",
+                                    "Faible" => "success",
+                                    _ => "secondary"
+                                };
+                                
+                                <tr>
+                                    <td>#@patient.Id</td>
+                                    <td>
+                                        <strong>@patient.Name</strong>
+                                        @if (!string.IsNullOrEmpty(patient.Email))
+                                        {
+                                            <br />
+                                            <small class="text-muted">@patient.Email</small>
+                                        }
+                                    </td>
+                                    <td>@patient.Age ans</td>
+                                    <td>
+                                        @switch (patient.Gender)
+                                        {
+                                            case "M":
+                                                <span class="badge bg-info">M</span>
+                                                break;
+                                            case "F":
+                                                <span class="badge bg-purple">F</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-secondary">@patient.Gender</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>@(string.IsNullOrEmpty(patient.Phone) ? "-" : patient.Phone)</td>
+                                    <td>@patient.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        <span class="badge bg-@badgeClass">@triageLevel</span>
+                                    </td>
+                                    <td>
+                                        <a asp-controller="Patients" asp-action="Details" asp-route-id="@patient.Id" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> Détails
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                Affichage de @Model.Count patients enregistrés dans le système
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="bi bi-people display-1 text-muted"></i>
+            </div>
+            <h3 class="text-muted mb-3">Aucun patient enregistré</h3>
+            <p class="text-muted mb-4">Commencez par ajouter un patient via le questionnaire de triage.</p>
+            <a asp-controller="Triage" asp-action="Index" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle me-2"></i>Ajouter le premier patient
+            </a>
+        </div>
+    }
+</div>
+
+@section Styles {
+    <style>
+        .bg-purple {
+            background-color: #6f42c1 !important;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+    </style>
+}

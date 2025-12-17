@@ -1,0 +1,350 @@
+@model List<MedicalTriageSystem.Models.TriageResult>
+
+@{
+    ViewData["Title"] = "Résultats de Triage";
+}
+
+<div class="container py-4">
+    <h1 class="display-6 fw-bold text-primary mb-4">
+        <i class="bi bi-clipboard2-data me-2"></i>Résultats de Triage
+    </h1>
+
+    <!-- Filtres -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="levelFilter" class="form-label">Filtrer par niveau:</label>
+                    <select id="levelFilter" class="form-select">
+                        <option value="">Tous les niveaux</option>
+                        <option value="Urgent">Urgent</option>
+                        <option value="Élevé">Élevé</option>
+                        <option value="Normal">Normal</option>
+                        <option value="Faible">Faible</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="dateFilter" class="form-label">Filtrer par date:</label>
+                    <input type="date" id="dateFilter" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label for="scoreFilter" class="form-label">Score minimum:</label>
+                    <input type="range" id="scoreFilter" class="form-range" min="0" max="100" value="0">
+                    <div class="d-flex justify-content-between">
+                        <small>0</small>
+                        <small id="scoreValue">0</small>
+                        <small>100</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total</h5>
+                    <h2 class="mb-0">@Model.Count</h2>
+                    <small>Évaluations</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Urgents</h5>
+                    <h2 class="mb-0">@Model.Count(r => r.Level == "Urgent")</h2>
+                    <small>Cas critiques</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Moyenne Score</h5>
+                    <h2 class="mb-0">@(Model.Any() ? Model.Average(r => r.Score).ToString("0") : "0")</h2>
+                    <small>/ 100</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Assignés</h5>
+                    <h2 class="mb-0">@Model.Count(r => r.DoctorId.HasValue)</h2>
+                    <small>Médecins assignés</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des résultats -->
+    @if (Model.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="resultsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient</th>
+                                <th>Niveau</th>
+                                <th>Score</th>
+                                <th>Médecin</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var result in Model.OrderByDescending(r => r.CreatedAt))
+                            {
+                                var levelClass = result.Level switch
+                                {
+                                    "Urgent" => "danger",
+                                    "Élevé" => "warning",
+                                    "Normal" => "info",
+                                    "Faible" => "success",
+                                    _ => "secondary"
+                                };
+                                
+                                <tr data-level="@result.Level" data-date="@result.CreatedAt.ToString("yyyy-MM-dd")" data-score="@result.Score">
+                                    <td>#@result.Id</td>
+                                    <td>
+                                        @if (result.Patient != null)
+                                        {
+                                            <strong>@result.Patient.Name</strong><br>
+                                            <small class="text-muted">@result.Patient.Age ans</small>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Patient supprimé</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-@levelClass">@result.Level</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-2">@result.Score</div>
+                                            <div class="progress flex-grow-1" style="height: 6px;">
+                                                <div class="progress-bar bg-@levelClass" style="width: @result.Score%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (result.Doctor != null)
+                                        {
+                                            <div>
+                                                <strong>@result.Doctor.Name</strong><br>
+                                                <small class="text-muted">@result.Doctor.Specialty</small>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Non assigné</span>
+                                        }
+                                    </td>
+                                    <td>@result.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                data-bs-toggle="tooltip" 
+                                                title="Voir les détails"
+                                                onclick="showResultDetails(@result.Id)">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export -->
+        <div class="mt-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <button class="btn btn-outline-secondary" onclick="exportToCSV()">
+                        <i class="bi bi-download me-1"></i>Exporter CSV
+                    </button>
+                    <button class="btn btn-outline-secondary ms-2" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i>Imprimer
+                    </button>
+                </div>
+                <div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="showUrgentOnly">
+                        <label class="form-check-label" for="showUrgentOnly">
+                            Urgents uniquement
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="bi bi-clipboard2-data display-1 text-muted"></i>
+            </div>
+            <h3 class="text-muted mb-3">Aucun résultat de triage</h3>
+            <p class="text-muted">Les résultats de triage apparaîtront ici.</p>
+        </div>
+    }
+</div>
+
+<!-- Modal pour les détails -->
+<div class="modal fade" id="resultDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Détails du résultat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Contenu chargé dynamiquement -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-primary">Assigner un médecin</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialisation des tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Filtre par niveau
+            $('#levelFilter').change(function() {
+                filterResults();
+            });
+            
+            // Filtre par date
+            $('#dateFilter').change(function() {
+                filterResults();
+            });
+            
+            // Filtre par score
+            $('#scoreFilter').on('input', function() {
+                $('#scoreValue').text($(this).val());
+                filterResults();
+            });
+            
+            // Filtre urgents uniquement
+            $('#showUrgentOnly').change(function() {
+                filterResults();
+            });
+            
+            function filterResults() {
+                const selectedLevel = $('#levelFilter').val();
+                const selectedDate = $('#dateFilter').val();
+                const minScore = parseInt($('#scoreFilter').val());
+                const showUrgentOnly = $('#showUrgentOnly').is(':checked');
+                
+                $('tbody tr').each(function() {
+                    const level = $(this).data('level');
+                    const date = $(this).data('date');
+                    const score = parseInt($(this).data('score'));
+                    
+                    let shouldShow = true;
+                    
+                    if (selectedLevel && level !== selectedLevel) {
+                        shouldShow = false;
+                    }
+                    
+                    if (selectedDate && date !== selectedDate) {
+                        shouldShow = false;
+                    }
+                    
+                    if (score < minScore) {
+                        shouldShow = false;
+                    }
+                    
+                    if (showUrgentOnly && level !== 'Urgent') {
+                        shouldShow = false;
+                    }
+                    
+                    if (shouldShow) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            }
+        });
+        
+        function showResultDetails(resultId) {
+            // Pour l'exemple, on affiche des données simulées
+            // En production, vous feriez une requête AJAX
+            $('#modalBody').html(`
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Détails du résultat #${resultId}
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Informations patient:</h6>
+                        <p>Nom: Patient #${resultId}</p>
+                        <p>Score: ${50 + resultId}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Recommandations:</h6>
+                        <p>Consulter un médecin rapidement.</p>
+                    </div>
+                </div>
+            `);
+            
+            $('#resultDetailsModal').modal('show');
+        }
+        
+        function exportToCSV() {
+            const rows = [];
+            const headers = ['ID', 'Patient', 'Niveau', 'Score', 'Médecin', 'Date'];
+            rows.push(headers.join(','));
+            
+            $('#resultsTable tbody tr:visible').each(function() {
+                const cells = [];
+                $(this).find('td').each(function(index) {
+                    let text = $(this).text().trim();
+                    
+                    // Pour la colonne du médecin, on prend juste le nom
+                    if (index === 4) {
+                        text = $(this).find('strong').text() || text;
+                    }
+                    
+                    // Échapper les virgules
+                    if (text.includes(',')) {
+                        text = `"${text}"`;
+                    }
+                    
+                    cells.push(text);
+                });
+                rows.push(cells.join(','));
+            });
+            
+            const csvContent = rows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'triage_results.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+}

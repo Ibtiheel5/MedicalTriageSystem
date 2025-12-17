@@ -1,0 +1,411 @@
+﻿@model MedicalTriageSystem.Models.Patient
+
+@{
+    ViewData["Title"] = "Questionnaire Triage";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h2 class="text-center mb-0">
+                        <i class="bi bi-clipboard2-pulse me-2"></i>Questionnaire de Triage Médical
+                    </h2>
+                    <p class="text-center mb-0 mt-2 opacity-75">Évaluation rapide de l'urgence médicale</p>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="Index" method="post" id="triageForm">
+                        <!-- Informations du patient -->
+                        <div class="patient-info-section mb-5">
+                            <h4 class="section-title mb-3">
+                                <i class="bi bi-person-circle me-2"></i>Informations du patient
+                            </h4>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input asp-for="Name" class="form-control" placeholder="Nom complet" required />
+                                        <label asp-for="Name">Nom complet *</label>
+                                        <span asp-validation-for="Name" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input asp-for="Age" type="number" class="form-control" placeholder="Âge" min="0" max="120" required />
+                                        <label asp-for="Age">Âge *</label>
+                                        <span asp-validation-for="Age" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <select asp-for="Gender" class="form-select" id="gender">
+                                            <option value="">Sélectionner</option>
+                                            <option value="M">Masculin</option>
+                                            <option value="F">Féminin</option>
+                                            <option value="O">Autre</option>
+                                        </select>
+                                        <label asp-for="Gender">Genre</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input asp-for="Email" type="email" class="form-control" placeholder="Email" />
+                                        <label asp-for="Email">Email (facultatif)</label>
+                                        <small class="text-muted">Pour recevoir les résultats</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input asp-for="Phone" type="tel" class="form-control" placeholder="Téléphone" />
+                                        <label asp-for="Phone">Téléphone</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Symptômes -->
+                        <div class="symptoms-section">
+                            <h4 class="section-title mb-4">
+                                <i class="bi bi-heart-pulse me-2"></i>Symptômes (Sévérité de 1 à 10)
+                            </h4>
+
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Cochez les symptômes présents et évaluez leur sévérité
+                            </div>
+
+                            <div class="row g-3" id="symptoms-container">
+                                <!-- Symptôme 1 -->
+                                <div class="col-md-6">
+                                    <div class="symptom-card card h-100 border">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input symptom-checkbox" type="checkbox"
+                                                           id="symptom1" data-symptom="Douleur thoracique">
+                                                    <label class="form-check-label fw-bold" for="symptom1">
+                                                        Douleur thoracique
+                                                    </label>
+                                                </div>
+                                                <span class="badge bg-danger">URGENT</span>
+                                            </div>
+                                            <p class="text-muted small mb-3">Douleur ou pression dans la poitrine</p>
+                                            <div class="severity-slider">
+                                                <label class="form-label">Niveau de douleur:</label>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="me-2">1</span>
+                                                    <input type="range" class="form-range severity-slider-input"
+                                                           min="1" max="10" value="5" disabled data-symptom-id="symptom1">
+                                                    <span class="ms-2">10</span>
+                                                    <span class="ms-3 severity-value" id="value-symptom1">5</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Symptôme 2 -->
+                                <div class="col-md-6">
+                                    <div class="symptom-card card h-100 border">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input symptom-checkbox" type="checkbox"
+                                                           id="symptom2" data-symptom="Difficulté respiratoire">
+                                                    <label class="form-check-label fw-bold" for="symptom2">
+                                                        Difficulté respiratoire
+                                                    </label>
+                                                </div>
+                                                <span class="badge bg-danger">URGENT</span>
+                                            </div>
+                                            <p class="text-muted small mb-3">Essoufflement ou respiration difficile</p>
+                                            <div class="severity-slider">
+                                                <label class="form-label">Niveau de difficulté:</label>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="me-2">1</span>
+                                                    <input type="range" class="form-range severity-slider-input"
+                                                           min="1" max="10" value="5" disabled data-symptom-id="symptom2">
+                                                    <span class="ms-2">10</span>
+                                                    <span class="ms-3 severity-value" id="value-symptom2">5</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Symptôme 3 -->
+                                <div class="col-md-6">
+                                    <div class="symptom-card card h-100 border">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input symptom-checkbox" type="checkbox"
+                                                           id="symptom3" data-symptom="Fièvre élevée">
+                                                    <label class="form-check-label fw-bold" for="symptom3">
+                                                        Fièvre élevée
+                                                    </label>
+                                                </div>
+                                                <span class="badge bg-warning text-dark">MOYEN</span>
+                                            </div>
+                                            <p class="text-muted small mb-3">Température supérieure à 38.5°C</p>
+                                            <div class="severity-slider">
+                                                <label class="form-label">Niveau de fièvre:</label>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="me-2">1</span>
+                                                    <input type="range" class="form-range severity-slider-input"
+                                                           min="1" max="10" value="5" disabled data-symptom-id="symptom3">
+                                                    <span class="ms-2">10</span>
+                                                    <span class="ms-3 severity-value" id="value-symptom3">5</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Symptôme 4 -->
+                                <div class="col-md-6">
+                                    <div class="symptom-card card h-100 border">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input symptom-checkbox" type="checkbox"
+                                                           id="symptom4" data-symptom="Saignement important">
+                                                    <label class="form-check-label fw-bold" for="symptom4">
+                                                        Saignement important
+                                                    </label>
+                                                </div>
+                                                <span class="badge bg-danger">URGENT</span>
+                                            </div>
+                                            <p class="text-muted small mb-3">Saignement qui ne s'arrête pas</p>
+                                            <div class="severity-slider">
+                                                <label class="form-label">Intensité du saignement:</label>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="me-2">1</span>
+                                                    <input type="range" class="form-range severity-slider-input"
+                                                           min="1" max="10" value="5" disabled data-symptom-id="symptom4">
+                                                    <span class="ms-2">10</span>
+                                                    <span class="ms-3 severity-value" id="value-symptom4">5</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Symptôme 5 -->
+                                <div class="col-md-6">
+                                    <div class="symptom-card card h-100 border">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input symptom-checkbox" type="checkbox"
+                                                           id="symptom5" data-symptom="Maux de tête sévères">
+                                                    <label class="form-check-label fw-bold" for="symptom5">
+                                                        Maux de tête sévères
+                                                    </label>
+                                                </div>
+                                                <span class="badge bg-warning text-dark">MOYEN</span>
+                                            </div>
+                                            <p class="text-muted small mb-3">Céphalées intenses ou persistantes</p>
+                                            <div class="severity-slider">
+                                                <label class="form-label">Intensité:</label>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="me-2">1</span>
+                                                    <input type="range" class="form-range severity-slider-input"
+                                                           min="1" max="10" value="5" disabled data-symptom-id="symptom5">
+                                                    <span class="ms-2">10</span>
+                                                    <span class="ms-3 severity-value" id="value-symptom5">5</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Symptôme 6 -->
+                                <div class="col-md-6">
+                                    <div class="symptom-card card h-100 border">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input symptom-checkbox" type="checkbox"
+                                                           id="symptom6" data-symptom="Nausées/Vomissements">
+                                                    <label class="form-check-label fw-bold" for="symptom6">
+                                                        Nausées/Vomissements
+                                                    </label>
+                                                </div>
+                                                <span class="badge bg-info">FAIBLE</span>
+                                            </div>
+                                            <p class="text-muted small mb-3">Nausées persistantes ou vomissements</p>
+                                            <div class="severity-slider">
+                                                <label class="form-label">Fréquence:</label>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="me-2">1</span>
+                                                    <input type="range" class="form-range severity-slider-input"
+                                                           min="1" max="10" value="5" disabled data-symptom-id="symptom6">
+                                                    <span class="ms-2">10</span>
+                                                    <span class="ms-3 severity-value" id="value-symptom6">5</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Score total -->
+                            <div class="mt-4 p-3 bg-light rounded">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h5 class="mb-0">Score de triage estimé:</h5>
+                                        <small class="text-muted">Basé sur les symptômes sélectionnés</small>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <div class="display-4 fw-bold" id="totalScore">0</div>
+                                        <div class="small">/ 100 points</div>
+                                    </div>
+                                </div>
+                                <div class="progress mt-2" style="height: 10px;">
+                                    <div id="scoreProgress" class="progress-bar bg-success"
+                                         role="progressbar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boutons de soumission -->
+                        <div class="d-flex justify-content-between mt-5 pt-4 border-top">
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="bi bi-clipboard-check me-2"></i>Évaluer l'urgence
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Informations importantes -->
+            <div class="alert alert-warning mt-4">
+                <div class="d-flex">
+                    <div class="me-3">
+                        <i class="bi bi-exclamation-triangle fs-4"></i>
+                    </div>
+                    <div>
+                        <strong>Important:</strong> Ce système de triage est un outil d'orientation.
+                        En cas d'urgence vitale (douleur thoracique, difficulté respiratoire grave,
+                        perte de conscience), contactez immédiatement le 15 (SAMU).
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Gestion des checkboxes de symptômes
+            $('.symptom-checkbox').change(function() {
+                const checkbox = $(this);
+                const symptomId = checkbox.attr('id');
+                const slider = $(`[data-symptom-id="${symptomId}"]`);
+                const valueDisplay = $(`#value-${symptomId}`);
+
+                if (checkbox.is(':checked')) {
+                    slider.prop('disabled', false);
+                    slider.closest('.symptom-card').addClass('border-primary');
+                } else {
+                    slider.prop('disabled', true);
+                    slider.closest('.symptom-card').removeClass('border-primary');
+                }
+
+                calculateTotalScore();
+            });
+
+            // Gestion des sliders de sévérité
+            $('.severity-slider-input').on('input', function() {
+                const slider = $(this);
+                const symptomId = slider.data('symptom-id');
+                const value = slider.val();
+
+                $(`#value-${symptomId}`).text(value);
+                calculateTotalScore();
+            });
+
+            // Calcul du score total
+            function calculateTotalScore() {
+                let totalScore = 0;
+                let maxPossible = 0;
+
+                $('.symptom-checkbox:checked').each(function() {
+                    const symptomId = $(this).attr('id');
+                    const severity = parseInt($(`[data-symptom-id="${symptomId}"]`).val());
+                    totalScore += severity;
+                    maxPossible += 10;
+                });
+
+                // Ajout de points pour l'âge (patients plus âgés ont plus de risque)
+                const age = parseInt($('#Age').val()) || 0;
+                if (age > 60) {
+                    totalScore += Math.min(age - 60, 20);
+                    maxPossible += 20;
+                }
+
+                // Score minimum de 10 si au moins un symptôme est coché
+                if (totalScore > 0 && totalScore < 10) {
+                    totalScore = 10;
+                }
+
+                $('#totalScore').text(totalScore);
+                const percentage = maxPossible > 0 ? Math.round((totalScore / maxPossible) * 100) : 0;
+                $('#scoreProgress').css('width', percentage + '%');
+
+                // Changer la couleur de la barre de progression
+                if (percentage >= 70) {
+                    $('#scoreProgress').removeClass('bg-success bg-warning').addClass('bg-danger');
+                } else if (percentage >= 40) {
+                    $('#scoreProgress').removeClass('bg-success bg-danger').addClass('bg-warning');
+                } else {
+                    $('#scoreProgress').removeClass('bg-warning bg-danger').addClass('bg-success');
+                }
+            }
+
+            // Mise à jour initiale
+            $('#Age').on('input', calculateTotalScore);
+
+            // Validation du formulaire
+            $('#triageForm').submit(function(e) {
+                const checkedSymptoms = $('.symptom-checkbox:checked').length;
+                if (checkedSymptoms === 0) {
+                    e.preventDefault();
+                    alert('Veuillez sélectionner au moins un symptôme.');
+                    return false;
+                }
+
+                // Collecte des données pour l'envoi
+                const symptoms = [];
+                $('.symptom-checkbox:checked').each(function() {
+                    const symptomName = $(this).data('symptom');
+                    const symptomId = $(this).attr('id');
+                    const severity = $(`[data-symptom-id="${symptomId}"]`).val();
+                    symptoms.push({
+                        name: symptomName,
+                        severity: parseInt(severity)
+                    });
+                });
+
+                // Ajout des symptômes au formulaire
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'symptomsData',
+                    value: JSON.stringify(symptoms)
+                }).appendTo('#triageForm');
+
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'triageScore',
+                    value: $('#totalScore').text()
+                }).appendTo('#triageForm');
+            });
+        });
+    </script>
+}

@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Système Triage Médical</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Système Triage Médical</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Accueil</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Triage" asp-action="Index">Questionnaire Triage</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Patients" asp-action="Index">Patients</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Doctors" asp-action="Index">Médecins</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="TriageResults" asp-action="Index">Résultats Triage</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mt-5 pt-4">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted mt-5 py-3 bg-light">
+        <div class="container">
+            © 2025 - Système Triage Médical
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+</body>
+</html>

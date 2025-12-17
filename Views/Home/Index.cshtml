@@ -1,0 +1,163 @@
+﻿﻿@{
+ViewData["Title"] = "Accueil - Système Triage Médical";
+}
+
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold text-primary mb-3">
+                <i class="bi bi-heart-pulse me-2"></i>Système Triage Médical
+            </h1>
+            <p class="lead mb-4">
+                Une solution innovante pour l'évaluation et la priorisation des patients
+                dans les établissements de santé.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <a asp-controller="Triage" asp-action="Index" class="btn btn-primary btn-lg">
+                    <i class="bi bi-clipboard2-pulse me-2"></i>Nouveau Triage
+                </a>
+                <a asp-controller="Patients" asp-action="Index" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-people me-2"></i>Voir les Patients
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-4 text-center">
+                    <i class="bi bi-heart-pulse display-1 text-primary mb-3"></i>
+                    <h3 class="mb-3">Évaluation Médicale Rapide</h3>
+                    <p class="text-muted mb-4">
+                        Évaluez rapidement l'urgence médicale et priorisez
+                        les soins pour vos patients.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-5">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-people display-4 text-primary mb-3"></i>
+                    <h3 class="mb-2" id="patientsCount">0</h3>
+                    <p class="text-muted mb-0">Patients enregistrés</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-badge display-4 text-success mb-3"></i>
+                    <h3 class="mb-2" id="doctorsCount">0</h3>
+                    <p class="text-muted mb-0">Médecins disponibles</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-clipboard2-check display-4 text-warning mb-3"></i>
+                    <h3 class="mb-2" id="triagesCount">0</h3>
+                    <p class="text-muted mb-0">Triages réalisés</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-clock-history display-4 text-danger mb-3"></i>
+                    <h3 class="mb-2" id="urgentCount">0</h3>
+                    <p class="text-muted mb-0">Cas urgents</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fonctionnalités -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Fonctionnalités Principales</h2>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-clipboard2-pulse display-4 text-primary mb-3"></i>
+                    <h4 class="card-title mb-3">Questionnaire Intelligent</h4>
+                    <p class="card-text">
+                        Évaluation rapide des symptômes avec calcul automatique
+                        du niveau d'urgence.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-person-badge display-4 text-success mb-3"></i>
+                    <h4 class="card-title mb-3">Gestion des Médecins</h4>
+                    <p class="card-text">
+                        Assignation automatique des médecins disponibles
+                        selon la spécialité et l'urgence.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-graph-up display-4 text-info mb-3"></i>
+                    <h4 class="card-title mb-3">Tableaux de Bord</h4>
+                    <p class="card-text">
+                        Visualisation des statistiques et tendances
+                        pour une meilleure gestion des ressources.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body p-5 text-center">
+                    <h2 class="card-title mb-3">Prêt à commencer ?</h2>
+                    <p class="card-text mb-4">
+                        Commencez dès maintenant à utiliser notre système de triage médical
+                        pour améliorer l'efficacité de vos prises en charge.
+                    </p>
+                    <a asp-controller="Triage" asp-action="Index" class="btn btn-light btn-lg">
+                        <i class="bi bi-play-circle me-2"></i>Commencer un Triage
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Simulation de données (en production, vous feriez des appels AJAX)
+            setTimeout(() => {
+                $('#patientsCount').text('47').addClass('text-primary');
+                $('#doctorsCount').text('3').addClass('text-success');
+                $('#triagesCount').text('152').addClass('text-warning');
+                $('#urgentCount').text('12').addClass('text-danger');
+
+                // Animation des nombres
+                $('h3[id$="Count"]').each(function() {
+                    const $this = $(this);
+                    const count = parseInt($this.text());
+                    $this.counterUp({
+                        delay: 10,
+                        time: 1000
+                    });
+                });
+            }, 500);
+        });
+    </script>
+}

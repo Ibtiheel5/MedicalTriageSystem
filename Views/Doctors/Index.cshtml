@@ -1,0 +1,146 @@
+@model List<MedicalTriageSystem.Models.Doctor>
+
+@{
+    ViewData["Title"] = "Liste des Médecins";
+}
+
+<div class="container py-4">
+    <h1 class="display-6 fw-bold text-primary mb-4">
+        <i class="bi bi-person-badge me-2"></i>Liste des Médecins
+    </h1>
+
+    @if (Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var doctor in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="me-3">
+                                    <div class="avatar-circle bg-primary text-white">
+                                        <i class="bi bi-person-badge fs-4"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 class="card-title mb-1">@doctor.Name</h5>
+                                    <p class="text-muted mb-0">@doctor.Specialty</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <span class="badge @(doctor.IsAvailable ? "bg-success" : "bg-secondary")">
+                                    <i class="bi @(doctor.IsAvailable ? "bi-check-circle" : "bi-x-circle") me-1"></i>
+                                    @(doctor.IsAvailable ? "Disponible" : "Non disponible")
+                                </span>
+                            </div>
+                            
+                            <ul class="list-unstyled mb-4">
+                                <li class="mb-2">
+                                    <i class="bi bi-telephone me-2 text-primary"></i>
+                                    <a href="tel:@doctor.Phone" class="text-decoration-none">@doctor.Phone</a>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-envelope me-2 text-primary"></i>
+                                    <a href="mailto:@doctor.Email" class="text-decoration-none">@doctor.Email</a>
+                                </li>
+                                <li>
+                                    <i class="bi bi-clock me-2 text-primary"></i>
+                                    @doctor.Availability
+                                </li>
+                            </ul>
+                            
+                            <div class="d-grid gap-2">
+                                @if (doctor.IsAvailable)
+                                {
+                                    <button class="btn btn-primary">
+                                        <i class="bi bi-calendar-check me-1"></i>Assigner un patient
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-outline-secondary" disabled>
+                                        <i class="bi bi-clock me-1"></i>Indisponible
+                                    </button>
+                                }
+                                <button class="btn btn-outline-primary">
+                                    <i class="bi bi-chat-left-text me-1"></i>Contacter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        
+        <div class="mt-4">
+            <div class="alert alert-info">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <i class="bi bi-info-circle me-2"></i>
+                        @Model.Count(d => d.IsAvailable) médecins disponibles sur @Model.Count
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="showAvailableOnly" checked>
+                            <label class="form-check-label" for="showAvailableOnly">Afficher uniquement les disponibles</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="bi bi-person-badge display-1 text-muted"></i>
+            </div>
+            <h3 class="text-muted mb-3">Aucun médecin enregistré</h3>
+            <p class="text-muted">Contactez l'administrateur pour ajouter des médecins.</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#showAvailableOnly').change(function() {
+                const showOnlyAvailable = $(this).is(':checked');
+                
+                $('.col-md-6.col-lg-4').each(function() {
+                    const isAvailable = $(this).find('.badge.bg-success').length > 0;
+                    
+                    if (showOnlyAvailable && !isAvailable) {
+                        $(this).hide();
+                    } else {
+                        $(this).show();
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .avatar-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+        }
+        
+        .card {
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+}
