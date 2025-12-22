@@ -1,24 +1,43 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedicalTriageSystem.Models
 {
+    [Table("Notifications")]
     public class Notification
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required]
-        public string Title { get; set; } = string.Empty;
+        [StringLength(100)]
+        public string Title { get; set; }
 
-        public string Message { get; set; } = string.Empty;
+        [Required]
+        public string Message { get; set; }
 
-        public string Type { get; set; } = "Info"; // Info, Warning, Danger, Success
+        [StringLength(50)]
+        public string Type { get; set; } // Info, Warning, Success, Danger
 
+        [ForeignKey("User")]
         public int? UserId { get; set; }
-        public User? User { get; set; }
+
+        [ForeignKey("Patient")]
+        public int? PatientId { get; set; }
+
+        [ForeignKey("Doctor")]
+        public int? DoctorId { get; set; }
 
         public bool IsRead { get; set; } = false;
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
         public DateTime? ReadAt { get; set; }
+
+        // Navigation properties
+        public virtual User User { get; set; }
+        public virtual Patient Patient { get; set; }
+        public virtual Doctor Doctor { get; set; }
     }
 }

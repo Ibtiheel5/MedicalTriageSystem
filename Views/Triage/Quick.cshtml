@@ -1,0 +1,144 @@
+﻿@{
+    ViewData["Title"] = "Triage Rapide";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-clipboard2-pulse me-2"></i>Triage Médical Rapide
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Ce triage rapide est une version simplifiée. Pour accéder à toutes les fonctionnalités,
+                        <a href="/Auth/Login" class="alert-link">connectez-vous</a> ou
+                        <a href="/Auth/Register" class="alert-link">créez un compte</a>.
+                    </div>
+
+                    <form id="quickTriageForm">
+                        <div class="mb-3">
+                            <label class="form-label">Quels sont vos principaux symptômes ?</label>
+                            <textarea class="form-control" rows="3" placeholder="Décrivez vos symptômes..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Niveau de douleur (1-10)</label>
+                            <input type="range" class="form-range" min="1" max="10" value="5">
+                            <div class="d-flex justify-content-between">
+                                <small>1 - Léger</small>
+                                <small>10 - Insupportable</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Symptômes présents</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="fever">
+                                        <label class="form-check-label" for="fever">Fièvre</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="cough">
+                                        <label class="form-check-label" for="cough">Toux</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="headache">
+                                        <label class="form-check-label" for="headache">Maux de tête</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="nausea">
+                                        <label class="form-check-label" for="nausea">Nausées</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="fatigue">
+                                        <label class="form-check-label" for="fatigue">Fatigue</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="breathing">
+                                        <label class="form-check-label" for="breathing">Difficultés respiratoires</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Attention :</strong> Ce triage ne remplace pas une consultation médicale.
+                            En cas d'urgence, appelez le 15 immédiatement.
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-clipboard-check me-2"></i>Analyser mes symptômes
+                            </button>
+                            <a href="/Auth/Login" class="btn btn-outline-primary">
+                                <i class="bi bi-person-check me-2"></i>Connexion pour un triage complet
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $('#quickTriageForm').submit(function(e) {
+            e.preventDefault();
+
+            // Simulation d'analyse
+            const result = Math.floor(Math.random() * 4) + 1;
+            let message = '';
+            let type = '';
+
+            switch(result) {
+                case 1:
+                    message = 'Symptômes légers. Consultez un médecin dans les prochains jours si les symptômes persistent.';
+                    type = 'success';
+                    break;
+                case 2:
+                    message = 'Symptômes modérés. Consultez un médecin dans les 24-48 heures.';
+                    type = 'warning';
+                    break;
+                case 3:
+                    message = 'Symptômes sévères. Consultez un médecin rapidement ou appelez le 15 si nécessaire.';
+                    type = 'danger';
+                    break;
+                case 4:
+                    message = 'URGENCE MÉDICALE. Appelez immédiatement le 15 ou rendez-vous aux urgences.';
+                    type = 'danger';
+                    break;
+            }
+
+            // Afficher le résultat
+            const alertHtml = `
+                <div class="alert alert-${type} mt-3">
+                    <h5><i class="bi bi-clipboard2-heart me-2"></i>Résultat du triage</h5>
+                    <p class="mb-0">${message}</p>
+                </div>
+                <div class="text-center mt-3">
+                    <p>Pour un suivi personnalisé :</p>
+                    <div class="d-grid gap-2">
+                        <a href="/Auth/Register" class="btn btn-success">
+                            <i class="bi bi-person-plus me-2"></i>Créer un compte gratuit
+                        </a>
+                        <a href="/Auth/Login" class="btn btn-outline-primary">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            $('#quickTriageForm').html(alertHtml);
+        });
+    </script>
+}

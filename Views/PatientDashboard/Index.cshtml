@@ -61,54 +61,45 @@
                             @if (Model.LastTriage != null)
                             {
                                 <div class="card mb-4">
-                                    <div class="card-header
-                                                @(Model.LastTriage.Level == "Urgent" ? "bg-danger" :
-                                                                                       Model.LastTriage.Level == "High" ? "bg-warning" :
-                                                                                       Model.LastTriage.Level == "Normal" ? "bg-info" : "bg-success") text-white">
-                                                                                                                                                    <h5 class="mb-0">
-                                                                                                                                                        <i class="fas fa-clipboard-check me-2"></i>Dernier Résultat de Triage
-                                                                                                                                                    </h5>
-                                                                                                                                                </div>
-                                                                                                                                                <div class="card-body">
-                                                                                                                                                    <div class="row">
-                                                                                                                                                        <div class="col-md-4 text-center">
-                                                                                                                                                            <div class="display-6 fw-bold
-                                                            @(Model.LastTriage.Level == "Urgent" ? "text-danger" :
-                                                                                                               Model.LastTriage.Level == "High" ? "text-warning" :
-                                                                                                               Model.LastTriage.Level == "Normal" ? "text-info" : "text-success")">
-                                                                                                                                                                                @Model.LastTriage.Level
-                                                                                                                                                                            </div>
-                                                                                                                                                                            <small class="text-muted">Niveau</small>
-                                                                                                                                                                        </div>
-                                                                                                                                                                        <div class="col-md-4 text-center">
-                                                                                                                                                                            <div class="display-6 fw-bold text-primary">
-                                                                                                                                                                                @Model.LastTriage.Score
-                                                                                                                                                                            </div>
-                                                                                                                                                                            <small class="text-muted">Score</small>
-                                                                                                                                                                        </div>
-                                                                                                                                                                        <div class="col-md-4 text-center">
-                                                                                                                                                                            <div class="display-6 fw-bold text-secondary">
-                                                                                                                                                                                @Model.LastTriage.Date.ToString("dd/MM/yyyy")
-                                                                                                                                                                            </div>
-                                                                                                                                                                            <small class="text-muted">Date</small>
-                                                                                                                                                                        </div>
-                                                                                                                                                                    </div>
+                                    <div class="card-header @(Model.LastTriage.Level == "Urgent" ? "bg-danger" : Model.LastTriage.Level == "High" ? "bg-warning" : Model.LastTriage.Level == "Normal" ? "bg-info" : "bg-success") text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-clipboard-check me-2"></i>Dernier Résultat de Triage
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4 text-center">
+                                                <div class="display-6 fw-bold @(Model.LastTriage.Level == "Urgent" ? "text-danger" : Model.LastTriage.Level == "High" ? "text-warning" : Model.LastTriage.Level == "Normal" ? "text-info" : "text-success")">
+                                                    @Model.LastTriage.Level
+                                                </div>
+                                                <small class="text-muted">Niveau</small>
+                                            </div>
+                                            <div class="col-md-4 text-center">
+                                                <div class="display-6 fw-bold text-primary">
+                                                    @Model.LastTriage.Score
+                                                </div>
+                                                <small class="text-muted">Score</small>
+                                            </div>
+                                            <div class="col-md-4 text-center">
+                                                <div class="display-6 fw-bold text-secondary">
+                                                    @Model.LastTriage.Date.ToString("dd/MM/yyyy")
+                                                </div>
+                                                <small class="text-muted">Date</small>
+                                            </div>
+                                        </div>
 
                                         <div class="mt-4">
                                             <h6>Recommandations :</h6>
-                                            <div class="alert
-                                                        @(Model.LastTriage.Level == "Urgent" ? "alert-danger" :
-                                                                                                       Model.LastTriage.Level == "High" ? "alert-warning" :
-                                                                                                       Model.LastTriage.Level == "Normal" ? "alert-info" : "alert-success")">
-                                            <i class="fas fa-stethoscope me-2"></i>
-                                            @Model.LastTriage.Recommendation
+                                            <div class="alert @(Model.LastTriage.Level == "Urgent" ? "alert-danger" : Model.LastTriage.Level == "High" ? "alert-warning" : Model.LastTriage.Level == "Normal" ? "alert-info" : "alert-success")">
+                                                <i class="fas fa-stethoscope me-2"></i>
+                                                @Model.LastTriage.Recommendation
+                                            </div>
                                         </div>
-                                    </div>
 
                                         <div class="mt-3">
                                             <h6>Médecin assigné :</h6>
                                             <div class="d-flex align-items-center">
-                                            @if (Model.LastTriage?.Doctor != null)
+                                                @if (Model.LastTriage?.Doctor != null)
                                                 {
                                                     <div class="avatar-circle bg-success me-3">
                                                         <i class="fas fa-user-md text-white"></i>
@@ -139,7 +130,7 @@
                                         <i class="fas fa-clipboard fa-4x text-muted mb-3"></i>
                                         <h5>Aucun triage n'a été effectué pour le moment</h5>
                                         <p class="text-muted">Veuillez consulter un médecin pour effectuer un premier triage.</p>
-                                        <a href="/Triage/Create" class="btn btn-primary mt-2">
+                                        <a asp-controller="Triage" asp-action="Create" class="btn btn-primary mt-2">
                                             <i class="fas fa-plus-circle me-2"></i>Demander un Triage
                                         </a>
                                     </div>
@@ -178,18 +169,15 @@
                                                         <tr>
                                                             <td>@triage.Date.ToString("dd/MM/yyyy HH:mm")</td>
                                                             <td>
-                                                                <span class="badge
-                                                                                @(triage.Level == "Urgent" ? "bg-danger" :
-                                                                                                                                                triage.Level == "High" ? "bg-warning" :
-                                                                                                                                                triage.Level == "Normal" ? "bg-info" : "bg-success")">
-                                                            @triage.Level
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <span class="fw-bold">@triage.Score</span>
-                                                    </td>
-                                                    <td>
-                                                        @if (triage.Doctor != null)
+                                                                <span class="badge @(triage.Level == "Urgent" ? "bg-danger" : triage.Level == "High" ? "bg-warning" : triage.Level == "Normal" ? "bg-info" : "bg-success")">
+                                                                    @triage.Level
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <span class="fw-bold">@triage.Score</span>
+                                                            </td>
+                                                            <td>
+                                                                @if (triage.Doctor != null)
                                                                 {
                                                                     <span>@triage.Doctor.Name</span>
                                                                 }
@@ -228,22 +216,22 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-3">
-                                            <a href="/Appointments/Create" class="btn btn-primary w-100 mb-3">
+                                            <a asp-controller="Appointments" asp-action="Create" class="btn btn-primary w-100 mb-3">
                                                 <i class="fas fa-calendar-plus me-2"></i>Nouveau Rendez-vous
                                             </a>
                                         </div>
                                         <div class="col-md-3">
-                                            <a href="/Symptoms/Create" class="btn btn-info w-100 mb-3">
+                                            <a asp-controller="Symptoms" asp-action="Create" class="btn btn-info w-100 mb-3">
                                                 <i class="fas fa-notes-medical me-2"></i>Ajouter Symptômes
                                             </a>
                                         </div>
                                         <div class="col-md-3">
-                                            <a href="/Triage/Create" class="btn btn-warning w-100 mb-3">
+                                            <a asp-controller="Triage" asp-action="Create" class="btn btn-warning w-100 mb-3">
                                                 <i class="fas fa-stethoscope me-2"></i>Demander Triage
                                             </a>
                                         </div>
                                         <div class="col-md-3">
-                                            <a href="/PatientDashboard/Profile" class="btn btn-success w-100 mb-3">
+                                            <a asp-controller="Patient" asp-action="Profile" class="btn btn-success w-100 mb-3">
                                                 <i class="fas fa-user-edit me-2"></i>Modifier Profil
                                             </a>
                                         </div>

@@ -1,28 +1,55 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedicalTriageSystem.Models
 {
+    [Table("Patients")]
     public class Patient
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        [Required]
+        [ForeignKey("User")]
         public int UserId { get; set; }
-        public User User { get; set; }
 
         [Required]
-        public string Name { get; set; } = string.Empty;
+        [StringLength(100)]
+        public string Name { get; set; }
 
         public int Age { get; set; }
-        public string? Email { get; set; }
-        public string? Phone { get; set; }
-        public string? Gender { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        [Required]
+        [EmailAddress]
+        [StringLength(100)]
+        public string Email { get; set; }
 
-        // ✅ SEULEMENT TriageResults (pluriel) - PAS de TriageResult (singulier)
-        public virtual List<Symptom> Symptoms { get; set; } = new();
-        public virtual List<TriageResult> TriageResults { get; set; } = new();
-        public virtual List<Appointment> Appointments { get; set; } = new();
+        [StringLength(20)]
+        public string Phone { get; set; }
+
+        [StringLength(20)]
+        public string Gender { get; set; } = "Non spécifié";
+
+        [StringLength(10)]
+        public string BloodType { get; set; } = "Non spécifié";
+
+        public string Address { get; set; }
+
+        public string EmergencyContact { get; set; }
+
+        public string EmergencyPhone { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
+        // Navigation properties
+        public virtual User User { get; set; }
+
+        // Collections (initialisez-les comme des listes vides)
+        public virtual ICollection<TriageResult> TriageResults { get; set; } = new List<TriageResult>();
+        public virtual ICollection<Symptom> Symptoms { get; set; } = new List<Symptom>();
+        public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+        public virtual ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
     }
 }

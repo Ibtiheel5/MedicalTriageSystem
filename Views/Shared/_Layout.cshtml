@@ -1,5 +1,4 @@
-﻿﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="utf-8" />
@@ -30,38 +29,119 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")"
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
                                asp-controller="Home" asp-action="Index">
                                 <i class="bi bi-house-door me-1"></i>Accueil
                             </a>
                         </li>
+
+                        <!-- Liens publics (visibles sans login) -->
                         <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Triage" ? "active" : "")"
-                               asp-controller="Triage" asp-action="Index">
-                                <i class="bi bi-clipboard2-pulse me-1"></i>Triage
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Triage" && ViewContext.RouteData.Values["Action"]?.ToString() == "Quick" ? "active" : "")"
+                               asp-controller="Triage" asp-action="Quick">
+                                <i class="bi bi-clipboard2-pulse me-1"></i>Triage Rapide
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Patients" ? "active" : "")"
-                               asp-controller="Patients" asp-action="Index">
-                                <i class="bi bi-people me-1"></i>Patients
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Doctors" ? "active" : "")"
-                               asp-controller="Doctors" asp-action="Index">
-                                <i class="bi bi-person-badge me-1"></i>Médecins
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "TriageResults" ? "active" : "")"
-                               asp-controller="TriageResults" asp-action="Index">
-                                <i class="bi bi-clipboard2-data me-1"></i>Résultats
-                            </a>
-                        </li>
+
+                        <!-- Liens protégés (seulement si authentifié) -->
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Triage" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
+                                   asp-controller="Triage" asp-action="Index">
+                                    <i class="bi bi-clipboard2-pulse me-1"></i>Triage Complet
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Patients" ? "active" : "")"
+                                   asp-controller="Patients" asp-action="Index">
+                                    <i class="bi bi-people me-1"></i>Patients
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Doctors" ? "active" : "")"
+                                   asp-controller="Doctors" asp-action="Index">
+                                    <i class="bi bi-person-badge me-1"></i>Médecins
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "TriageResults" ? "active" : "")"
+                                   asp-controller="TriageResults" asp-action="Index">
+                                    <i class="bi bi-clipboard2-data me-1"></i>Résultats
+                                </a>
+                            </li>
+
+                            @if (User.IsInRole("Patient"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Patient" ? "active" : "")"
+                                       asp-controller="Patient" asp-action="Dashboard">
+                                        <i class="bi bi-person-circle me-1"></i>Mon Espace
+                                    </a>
+                                </li>
+                            }
+
+                            @if (User.IsInRole("Doctor") || User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")"
+                                       asp-controller="Dashboard" asp-action="Index">
+                                        <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                                    </a>
+                                </li>
+                            }
+                        }
                     </ul>
-                    <div class="navbar-text">
-                        <span id="currentDateTime" class="text-white"></span>
+
+                    <div class="navbar-nav">
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <!-- Si l'utilisateur est connecté -->
+                            <div class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle me-1"></i>
+                                    @User.Identity.Name
+                                    <span class="badge bg-light text-primary ms-2">
+                                        @User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+                                    </span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="/Account/Profile">
+                                            <i class="bi bi-person me-2"></i>Mon Profil
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="/Account/Settings">
+                                            <i class="bi bi-gear me-2"></i>Paramètres
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="bi bi-box-arrow-right me-2"></i>Déconnexion
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Si l'utilisateur n'est PAS connecté -->
+                            <div class="d-flex align-items-center">
+                                <div class="navbar-text me-3 d-none d-md-block">
+                                    <span id="currentDateTime" class="text-white"></span>
+                                </div>
+                                <a class="btn btn-outline-light me-2" asp-controller="Auth" asp-action="Register">
+                                    <i class="bi bi-person-plus me-1"></i>S'inscrire
+                                </a>
+                                <a class="btn btn-light" asp-controller="Auth" asp-action="Login">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i>Se connecter
+                                </a>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -130,7 +210,10 @@
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            document.getElementById('currentDateTime').textContent = dateTimeString;
+            const datetimeElement = document.getElementById('currentDateTime');
+            if (datetimeElement) {
+                datetimeElement.textContent = dateTimeString;
+            }
         }
 
         updateDateTime();
