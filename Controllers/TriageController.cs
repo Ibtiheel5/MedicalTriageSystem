@@ -19,12 +19,12 @@ namespace MedicalTriageSystem.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return View(new Patient());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(Patient patient, string symptomsData, int triageScore)
+        public async Task<IActionResult> Index(Models.Patient patient, string symptomsData, int triageScore)
         {
             if (!ModelState.IsValid)
             {
@@ -49,7 +49,7 @@ namespace MedicalTriageSystem.Controllers
                             {
                                 Name = symptomData.Name,
                                 Description = GetSymptomDescription(symptomData.Name),
-                                Severity = symptomData.Severity,
+                                Severity = symptomData.Severity.ToString(),
                                 Category = GetSymptomCategory(symptomData.Name),
                                 Date = DateTime.Now,
                                 PatientId = patient.Id
@@ -75,6 +75,7 @@ namespace MedicalTriageSystem.Controllers
                     Recommendation = recommendation,
                     Score = triageScore,
                     CreatedAt = DateTime.Now,
+                    Date = DateTime.Now,
                     DoctorId = availableDoctor?.Id
                 };
                 _context.TriageResults.Add(triageResult);
@@ -108,7 +109,7 @@ namespace MedicalTriageSystem.Controllers
             }
             else if (score >= 40)
             {
-                return ("Élevé",
+                return ("High", // ✅ Changer "Élevé" en "High" pour correspondre aux autres fichiers
                     "📞 Consultation recommandée dans les 24 heures. " +
                     "Surveillez vos symptômes et consultez un médecin rapidement.");
             }
@@ -120,7 +121,7 @@ namespace MedicalTriageSystem.Controllers
             }
             else
             {
-                return ("Faible",
+                return ("Low", // ✅ Changer "Faible" en "Low" pour correspondre aux autres fichiers
                     "💊 Soins à domicile recommandés. " +
                     "Reposez-vous, hydratez-vous et surveillez vos symptômes. " +
                     "Consultez si aggravation.");
@@ -151,7 +152,7 @@ namespace MedicalTriageSystem.Controllers
         private class SymptomData
         {
             public string Name { get; set; } = string.Empty;
-            public int Severity { get; set; }
+            public int Severity { get; set; } // ✅ Garder int pour Severity
         }
     }
 }

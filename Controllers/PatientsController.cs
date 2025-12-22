@@ -18,7 +18,8 @@ namespace MedicalTriageSystem.Controllers
         {
             var patients = await _context.Patients
                 .Include(p => p.Symptoms)
-                .Include(p => p.TriageResult)
+                .Include(p => p.TriageResults)
+                    .ThenInclude(tr => tr.Doctor)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
 
@@ -29,7 +30,8 @@ namespace MedicalTriageSystem.Controllers
         {
             var patient = await _context.Patients
                 .Include(p => p.Symptoms)
-                .Include(p => p.TriageResult)
+                .Include(p => p.TriageResults)
+                    .ThenInclude(tr => tr.Doctor)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (patient == null)

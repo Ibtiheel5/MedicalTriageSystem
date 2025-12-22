@@ -1,0 +1,326 @@
+﻿@model MedicalTriageSystem.Models.RegisterModel
+@{
+    ViewData["Title"] = "Inscription - Medical Triage System";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Créer un compte
+                    </h2>
+                    <p class="mb-0 mt-2">Rejoignez notre système médical sécurisé</p>
+                </div>
+
+                <div class="card-body p-5">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form method="post" asp-action="Register">
+                        @Html.AntiForgeryToken()
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Username" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Nom d'utilisateur *
+                                </label>
+                                <input asp-for="Username" class="form-control form-control-lg"
+                                       placeholder="Choisissez un nom d'utilisateur" />
+                                <span asp-validation-for="Username" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>Adresse email *
+                                </label>
+                                <input asp-for="Email" class="form-control form-control-lg"
+                                       placeholder="votre@email.com" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Password" class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Mot de passe *
+                                </label>
+                                <div class="input-group">
+                                    <input asp-for="Password" class="form-control form-control-lg"
+                                           type="password" placeholder="Minimum 6 caractères" />
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            onclick="togglePassword('Password')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                                <small class="form-text text-muted">Doit contenir au moins 6 caractères.</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ConfirmPassword" class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Confirmer le mot de passe *
+                                </label>
+                                <div class="input-group">
+                                    <input asp-for="ConfirmPassword" class="form-control form-control-lg"
+                                           type="password" placeholder="Répétez le mot de passe" />
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            onclick="togglePassword('ConfirmPassword')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FullName" class="form-label">
+                                    <i class="fas fa-id-card me-1"></i>Nom complet
+                                </label>
+                                <input asp-for="FullName" class="form-control form-control-lg"
+                                       placeholder="Votre nom complet (optionnel)" />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Phone" class="form-label">
+                                    <i class="fas fa-phone me-1"></i>Téléphone
+                                </label>
+                                <input asp-for="Phone" class="form-control form-control-lg"
+                                       placeholder="Votre numéro de téléphone (optionnel)" />
+                                <span asp-validation-for="Phone" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Role" class="form-label">
+                                <i class="fas fa-user-tag me-1"></i>Type de compte *
+                            </label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check card border p-3 h-100">
+                                        <input class="form-check-input" type="radio" asp-for="Role"
+                                               value="Patient" id="rolePatient" checked>
+                                        <label class="form-check-label fw-bold" for="rolePatient">
+                                            <i class="fas fa-user-injured me-1 text-primary"></i>Patient
+                                        </label>
+                                        <small class="text-muted d-block mt-1">
+                                            Pour les patients cherchant des soins médicaux
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check card border p-3 h-100">
+                                        <input class="form-check-input" type="radio" asp-for="Role"
+                                               value="Doctor" id="roleDoctor">
+                                        <label class="form-check-label fw-bold" for="roleDoctor">
+                                            <i class="fas fa-user-md me-1 text-info"></i>Médecin
+                                        </label>
+                                        <small class="text-muted d-block mt-1">
+                                            Pour les professionnels de santé (sur validation)
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check card border p-3 h-100">
+                                        <input class="form-check-input" type="radio" asp-for="Role"
+                                               value="Admin" id="roleAdmin" disabled>
+                                        <label class="form-check-label fw-bold text-muted" for="roleAdmin">
+                                            <i class="fas fa-user-shield me-1 text-danger"></i>Administrateur
+                                        </label>
+                                        <small class="text-muted d-block mt-1">
+                                            Uniquement sur invitation
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <span asp-validation-for="Role" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                J'accepte les <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">
+                                    conditions d'utilisation
+                                </a> et la
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">
+                                    politique de confidentialité
+                                </a> *
+                            </label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-user-check me-2"></i>Créer mon compte
+                            </button>
+                            <a href="@Url.Action("Login")" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Déjà un compte ? Se connecter
+                            </a>
+                        </div>
+
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger mt-3">
+                                <h6 class="alert-heading">Veuillez corriger les erreurs suivantes :</h6>
+                                <ul class="mb-0">
+                                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                    {
+                                        <li>@error.ErrorMessage</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </form>
+                </div>
+
+                <div class="card-footer text-center py-3">
+                    <small class="text-muted">
+                        <i class="fas fa-shield-alt me-1"></i>Vos données sont sécurisées et cryptées
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Conditions d'utilisation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Acceptation des conditions</h6>
+                <p>En créant un compte sur Medical Triage System, vous acceptez ces conditions d'utilisation.</p>
+
+                <h6>2. Utilisation du service</h6>
+                <p>Le système de triage médical est un outil d'aide à la décision et ne remplace pas une consultation médicale professionnelle.</p>
+
+                <h6>3. Confidentialité</h6>
+                <p>Vos données médicales sont traitées de manière confidentielle et sécurisée.</p>
+
+                <h6>4. Responsabilité</h6>
+                <p>Pour les urgences médicales, contactez immédiatement les services d'urgence (15, 112).</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Politique de confidentialité</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Collecte des données</h6>
+                <p>Nous collectons uniquement les données nécessaires au triage médical et à la gestion de votre compte.</p>
+
+                <h6>2. Protection des données</h6>
+                <p>Toutes les données sont cryptées et stockées sur des serveurs sécurisés en France.</p>
+
+                <h6>3. Partage des données</h6>
+                <p>Vos données médicales ne sont partagées qu'avec votre consentement ou en cas d'urgence médicale.</p>
+
+                <h6>4. Vos droits</h6>
+                <p>Vous avez le droit d'accéder, de modifier ou de supprimer vos données à tout moment.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.parentElement.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Validation en temps réel
+        document.addEventListener('DOMContentLoaded', function() {
+            const password = document.getElementById('Password');
+            const confirmPassword = document.getElementById('ConfirmPassword');
+
+            function validatePasswords() {
+                if (password.value && confirmPassword.value) {
+                    if (password.value !== confirmPassword.value) {
+                        confirmPassword.setCustomValidity('Les mots de passe ne correspondent pas');
+                    } else {
+                        confirmPassword.setCustomValidity('');
+                    }
+                }
+            }
+
+            password.addEventListener('input', validatePasswords);
+            confirmPassword.addEventListener('input', validatePasswords);
+
+            // Focus sur le premier champ
+            document.getElementById('Username').focus();
+        });
+    </script>
+
+    <style>
+        .card {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .form-check.card:hover {
+            border-color: #198754;
+            cursor: pointer;
+        }
+
+        .form-check-input:checked + label {
+            color: #198754;
+        }
+
+        .form-check.card {
+            transition: all 0.3s ease;
+        }
+
+            .form-check.card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+        .btn-success {
+            background: linear-gradient(45deg, #198754, #157347);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+            .btn-success:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(25, 135, 84, 0.4);
+            }
+
+        .form-label {
+            font-weight: 500;
+        }
+
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #198754;
+        }
+    </style>
+}

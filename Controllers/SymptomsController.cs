@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MedicalTriageSystem.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using MedicalTriageSystem.Data;
-using MedicalTriageSystem.Models;
 
 namespace MedicalTriageSystem.Controllers
 {
@@ -53,11 +48,9 @@ namespace MedicalTriageSystem.Controllers
         }
 
         // POST: Symptoms/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Description,Severity,PatientId")] Symptom symptom)
+        public async Task<IActionResult> Create([Bind("Id,Description,Severity,PatientId")] Models.Symptom symptom)
         {
             if (ModelState.IsValid)
             {
@@ -87,11 +80,9 @@ namespace MedicalTriageSystem.Controllers
         }
 
         // POST: Symptoms/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Description,Severity,PatientId")] Symptom symptom)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Description,Severity,PatientId")] Models.Symptom symptom)
         {
             if (id != symptom.Id)
             {

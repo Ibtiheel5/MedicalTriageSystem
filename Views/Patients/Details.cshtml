@@ -1,11 +1,16 @@
 ﻿@model MedicalTriageSystem.Models.Patient
+@using MedicalTriageSystem.Extensions
 
 @{
     ViewData["Title"] = "Détails du Patient";
 
     // Gérer les cas nuls
     var symptoms = Model.Symptoms ?? new List<MedicalTriageSystem.Models.Symptom>();
-    var triageResult = Model.TriageResult;
+
+    // ✅ CORRECTION : Utiliser la méthode d'extension ou TriageResults.LastOrDefault()
+    var lastTriage = Model.GetLastTriage();
+    var triageLevel = Model.GetTriageLevel();
+    var triageScore = Model.GetTriageScore();
 }
 
 <div class="container py-4">
@@ -94,34 +99,34 @@
                     <h5 class="mb-0"><i class="bi bi-clipboard2-pulse me-2"></i>Résultat du Triage</h5>
                 </div>
                 <div class="card-body">
-                    @if (triageResult != null)
+                    @if (lastTriage != null)
                     {
-                        var levelClass = triageResult.Level switch
+                        var levelClass = triageLevel switch
                         {
                             "Urgent" => "danger",
-                            "Élevé" => "warning",
+                            "High" => "warning",
                             "Normal" => "info",
-                            "Faible" => "success",
+                            "Low" => "success",
                             _ => "secondary"
                         };
 
                         <div class="alert alert-@levelClass">
-                            <h5 class="alert-heading">Niveau: @triageResult.Level</h5>
-                            <p>@triageResult.Recommendation</p>
+                            <h5 class="alert-heading">Niveau: @triageLevel</h5>
+                            <p>@lastTriage.Recommendation</p>
                             <hr>
-                            <p class="mb-0">Score: <strong>@triageResult.Score / 100</strong></p>
-                            <p class="mb-0">Date: @triageResult.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                            <p class="mb-0">Score: <strong>@triageScore / 100</strong></p>
+                            <p class="mb-0">Date: @lastTriage.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
                         </div>
 
-                        @if (triageResult.Doctor != null)
+                        @if (lastTriage.Doctor != null)
                         {
                             <div class="mt-3 p-3 bg-light rounded">
                                 <h6><i class="bi bi-person-badge me-2"></i>Médecin assigné</h6>
-                                <p class="mb-1"><strong>@triageResult.Doctor.Name</strong></p>
-                                <p class="mb-1 text-muted">@triageResult.Doctor.Specialty</p>
+                                <p class="mb-1"><strong>@lastTriage.Doctor.Name</strong></p>
+                                <p class="mb-1 text-muted">@lastTriage.Doctor.Specialty</p>
                                 <p class="mb-0">
                                     <i class="bi bi-telephone me-1"></i>
-                                    @triageResult.Doctor.Phone
+                                    @lastTriage.Doctor.Phone
                                 </p>
                             </div>
                         }
@@ -167,12 +172,28 @@
                                             <div class="mt-2">
                                                 <div class="d-flex justify-content-between">
                                                     <span>Sévérité:</span>
-                                                    <span class="fw-bold">@symptom.Severity / 10</span>
+                                                    <span class="fw-bold">
+                                                        @{
+                                                            // ✅ CORRECTION : Gérer la sévérité selon le type
+                                                            if (int.TryParse(symptom.Severity, out int severityInt))
+                                                            {
+                                                                <text>@severityInt / 10</text>
+                                                            }
+                                                            else
+                                                            {
+                                                                <text>@symptom.Severity</text>
+                                                            }
+                                                        }
+                                                    </span>
                                                 </div>
-                                                <div class="progress mt-1" style="height: 8px;">
-                                                    <div class="progress-bar @(symptom.Severity >= 7 ? "bg-danger" : symptom.Severity >= 4 ? "bg-warning" : "bg-info")"
-                                                         style="width: @(symptom.Severity * 10)%"></div>
-                                                </div>
+
+                                                @if (int.TryParse(symptom.Severity, out int severityValue))
+                                                {
+                                                    <div class="progress mt-1" style="height: 8px;">
+                                                        <div class="progress-bar @(severityValue >= 7 ? "bg-danger" : severityValue >= 4 ? "bg-warning" : "bg-info")"
+                                                             style="width: @(severityValue * 10)%"></div>
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>

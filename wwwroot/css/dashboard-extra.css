@@ -1,0 +1,385 @@
+﻿/* Additional Dashboard Styles */
+
+/* Appointments List */
+.appointments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.appointment-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: var(--light-bg);
+    border-radius: 0.5rem;
+    border-left: 4px solid var(--success-color);
+    transition: var(--transition);
+}
+
+    .appointment-item:hover {
+        background: white;
+        box-shadow: var(--shadow);
+    }
+
+    .appointment-item.urgent {
+        border-left-color: var(--danger-color);
+    }
+
+.appointment-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-right: 1rem;
+    border-right: 1px solid var(--border-color);
+    min-width: 80px;
+}
+
+    .appointment-time strong {
+        font-size: 1.1rem;
+        color: var(--dark-bg);
+    }
+
+    .appointment-time small {
+        color: var(--secondary-color);
+        font-size: 0.8rem;
+    }
+
+.appointment-details {
+    flex: 1;
+    padding: 0 1rem;
+}
+
+    .appointment-details h6 {
+        margin: 0 0 0.25rem;
+        font-weight: 600;
+    }
+
+    .appointment-details p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--secondary-color);
+    }
+
+    .appointment-details small {
+        font-size: 0.8rem;
+    }
+
+.appointment-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Doctors List */
+.doctors-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.doctor-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    transition: var(--transition);
+}
+
+    .doctor-item:hover {
+        border-color: var(--primary-color);
+        box-shadow: var(--shadow);
+    }
+
+.doctor-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-right: 1rem;
+}
+
+.doctor-info {
+    flex: 1;
+}
+
+    .doctor-info h6 {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .doctor-info small {
+        color: var(--secondary-color);
+        font-size: 0.8rem;
+    }
+
+.doctor-status .badge {
+    font-size: 0.7rem;
+    padding: 0.25em 0.6em;
+}
+
+/* Search Results */
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 0.5rem;
+}
+
+.search-category {
+    padding: 0.75rem 1rem;
+    background: var(--light-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+    .search-category h6 {
+        margin: 0;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--secondary-color);
+    }
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: var(--dark-bg);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+
+    .search-result-item:hover {
+        background: var(--light-bg);
+    }
+
+    .search-result-item i {
+        width: 24px;
+        margin-right: 0.75rem;
+        color: var(--primary-color);
+    }
+
+    .search-result-item div {
+        flex: 1;
+    }
+
+    .search-result-item strong {
+        display: block;
+        font-size: 0.9rem;
+    }
+
+    .search-result-item small {
+        color: var(--secondary-color);
+        font-size: 0.8rem;
+    }
+
+.search-no-results {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--secondary-color);
+}
+
+/* Toast Notifications */
+.toast-container {
+    z-index: 1060;
+}
+
+.toast {
+    min-width: 300px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.toast-header {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.toast-body {
+    padding: 1rem;
+}
+
+/* Urgent Alert */
+.urgent-alert {
+    max-width: 600px;
+    animation: slideInDown 0.3s ease forwards;
+    border: none;
+    box-shadow: 0 4px 12px rgba(229, 62, 62, 0.15);
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+}
+
+.theme-toggle-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+}
+
+    .theme-toggle-btn:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: scale(1.1);
+    }
+
+/* Dark Theme */
+[data-theme="dark"] body {
+    background: #1a202c;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .dashboard-card {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .card-header {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .table {
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .table-light {
+    background: #4a5568;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .search-results {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .search-result-item {
+    color: #e2e8f0;
+    border-color: #4a5568;
+}
+
+    [data-theme="dark"] .search-result-item:hover {
+        background: #4a5568;
+    }
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-spinner-large {
+    width: 60px;
+    height: 60px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Progress Indicators */
+.progress-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4299e1, #667eea, #4299e1);
+    background-size: 200% 100%;
+    animation: loading 2s linear infinite;
+    z-index: 9999;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .sidebar,
+    .top-nav,
+    .footer,
+    .no-print {
+        display: none !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+
+    .dashboard-card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+
+    .page-break {
+        page-break-before: always;
+    }
+}
