@@ -1,51 +1,97 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MedicalTriageSystem.Data;
+using MedicalTriageSystem.Models;
+using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace MedicalTriageSystem.Controllers
 {
     public class TriageController : Controller
     {
-        [AllowAnonymous] // Accessible sans authentification
+        private readonly ApplicationDbContext _context;
+
+        public TriageController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        [AllowAnonymous]
         public IActionResult Quick()
         {
-            // Version simplifiée du triage pour les utilisateurs non authentifiés
             return View();
         }
 
-        [Authorize] // Nécessite l'authentification
+        [Authorize]
         public IActionResult Index()
         {
-            // Version complète du triage
-            return View();
+            return View(new Patient()); // Model vide pour formulaire
         }
 
-        [Authorize] // Nécessite l'authentification
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        [Authorize] // Nécessite l'authentification
+        [Authorize]
         [HttpPost]
-        public IActionResult Create(TriageModel model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Index(Patient model, string symptomsData, int triageScore)
         {
-            // Logique de création de triage
-            return RedirectToAction("Results", new { id = model.Id });
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var patient = await _context.Patients.FirstOrDefaultAsync(p => p.UserId == userId);
+
+            if (patient == null)
+            {
+                patient = new Patient
+                {
+                    UserId = userId,
+                    Name = User.Identity.Name,
+                    Email = User.FindFirstValue(ClaimTypes.Email),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                _context.Patients.Add(patient);
+                await _context.SaveChangesAsync();
+            }
+
+            // Calcul level basé sur score (exemple développé)
+            string level = triageScore switch
+            {
+                > 30 => "Urgent",
+                > 20 => "Élevé",
+                > 10 => "Normal",
+                _ => "Faible"
+            };
+
+            var triageResult = new TriageResult
+            {
+                PatientId = patient.Id,
+                Score = triageScore,
+                Level = level,
+                Recommendation = "Consultez un médecin si symptômes persistent.", // Personnaliser
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.TriageResults.Add(triageResult);
+            await _context.SaveChangesAsync();
+
+            ViewBag.Level = level;
+            ViewBag.PatientName = patient.Name;
+            return View("Result");
         }
 
-        [Authorize] // Nécessite l'authentification
+        [Authorize]
         public IActionResult Results(int id)
         {
+            // Logique pour afficher résultat spécifique
             return View();
         }
     }
 
-    // Modèle pour le triage
+    // Model pour triage (ajouté pour complétude)
     public class TriageModel
     {
         public int Id { get; set; }
-        public string Symptoms { get; set; }
-        public string Severity { get; set; }
-        // ... autres propriétés
+        public string Symptoms { get; set; } = string.Empty;
+        public string Severity { get; set; } = string.Empty;
     }
 }

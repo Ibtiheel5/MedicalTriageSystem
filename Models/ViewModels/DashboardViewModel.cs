@@ -1,14 +1,14 @@
 ﻿using MedicalTriageSystem.Models;
-using System.Collections.Generic;
 
 namespace MedicalTriageSystem.Models.ViewModels
 {
     public class DashboardViewModel
     {
-        public DashboardStatistics Statistics { get; set; } = new DashboardStatistics();
-        public List<Patient> RecentPatients { get; set; } = new List<Patient>();
-        public List<TriageResult> UrgentCases { get; set; } = new List<TriageResult>();
-        public List<Doctor> DoctorAvailability { get; set; } = new List<Doctor>();
+        public DashboardStatistics Statistics { get; set; } = new();
+        public List<Patient> RecentPatients { get; set; } = new();
+        public List<TriageResult> UrgentCases { get; set; } = new();
+        public List<Doctor> DoctorAvailability { get; set; } = new();
+        public List<Appointment> UpcomingAppointments { get; set; } = new(); // ✅ PROPRIÉTÉ AJOUTÉE
     }
 
     public class DashboardStatistics

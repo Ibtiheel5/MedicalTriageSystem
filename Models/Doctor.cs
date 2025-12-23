@@ -28,9 +28,6 @@ namespace MedicalTriageSystem.Models
         [StringLength(100)]
         public string Email { get; set; }
 
-        [StringLength(100)]
-        public string LicenseNumber { get; set; }
-
         public bool IsAvailable { get; set; } = true;
 
         [StringLength(100)]

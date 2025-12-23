@@ -78,6 +78,23 @@ app.UseAuthorization();
 
 app.UseSession();
 
+// ✅ CORRECTION: Routes dans le bon ordre
+app.MapControllerRoute(
+    name: "auth",
+    pattern: "Auth/{action=Login}/{id?}",
+    defaults: new { controller = "Auth" });
+
+app.MapControllerRoute(
+    name: "patientDashboard",
+    pattern: "Patient/Dashboard",
+    defaults: new { controller = "Patient", action = "Dashboard" });
+
+app.MapControllerRoute(
+    name: "patientDashboardDirect",
+    pattern: "PatientDashboard/{action=Dashboard}/{id?}",
+    defaults: new { controller = "PatientDashboard" });
+
+// Route par défaut DOIT être la dernière
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
@@ -112,7 +129,7 @@ using (var scope = app.Services.CreateScope())
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
                 Role = "Admin",
                 IsActive = true,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow // CORRECTION: Utilisez UtcNow
             };
             context.Users.Add(admin);
             await context.SaveChangesAsync();
@@ -130,7 +147,7 @@ using (var scope = app.Services.CreateScope())
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("docteur123"),
                 Role = "Doctor",
                 IsActive = true,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow // CORRECTION: Utilisez UtcNow
             };
             context.Users.Add(doctorUser);
 
@@ -162,7 +179,7 @@ using (var scope = app.Services.CreateScope())
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("patient123"),
                 Role = "Patient",
                 IsActive = true,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow // CORRECTION: Utilisez UtcNow
             };
             context.Users.Add(patientUser);
 
@@ -175,8 +192,8 @@ using (var scope = app.Services.CreateScope())
                 Email = "patient@example.com",
                 Phone = "06 12 34 56 78",
                 Gender = "Homme",
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow, // CORRECTION: Utilisez UtcNow
+                UpdatedAt = DateTime.UtcNow // CORRECTION: Utilisez UtcNow
             };
             context.Patients.Add(patient);
 
@@ -191,7 +208,6 @@ using (var scope = app.Services.CreateScope())
         // Vérifier les patients
         var patientCount = await context.Patients.CountAsync();
         Console.WriteLine($"👤 Nombre de patients: {patientCount}");
-
     }
     catch (Exception ex)
     {
@@ -201,166 +217,168 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine($"❌ Inner Exception: {ex.InnerException.Message}");
         }
     }
-    // Dans Program.cs, juste avant app.Run()
-    app.Map("/test-db", async context =>
+}
+
+// Route de test de la base de données
+app.Map("/test-db", async context =>
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    var html = new System.Text.StringBuilder();
+    html.AppendLine("<html><head><style>");
+    html.AppendLine("body { font-family: Arial; margin: 20px; }");
+    html.AppendLine(".success { color: green; }");
+    html.AppendLine(".error { color: red; }");
+    html.AppendLine("pre { background: #f4f4f4; padding: 10px; }");
+    html.AppendLine("</style></head><body>");
+    html.AppendLine("<h1>Test de la base de données</h1>");
+
+    try
     {
-        using var scope = app.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        var html = new System.Text.StringBuilder();
-        html.AppendLine("<html><head><style>");
-        html.AppendLine("body { font-family: Arial; margin: 20px; }");
-        html.AppendLine(".success { color: green; }");
-        html.AppendLine(".error { color: red; }");
-        html.AppendLine("pre { background: #f4f4f4; padding: 10px; }");
-        html.AppendLine("</style></head><body>");
-        html.AppendLine("<h1>Test de la base de données</h1>");
-
+        // Test 1: Connexion
+        html.AppendLine("<h2>1. Test de connexion</h2>");
         try
         {
-            // Test 1: Connexion
-            html.AppendLine("<h2>1. Test de connexion</h2>");
-            try
-            {
-                await dbContext.Database.OpenConnectionAsync();
-                html.AppendLine("<p class='success'>✅ Connexion à la base réussie</p>");
-                await dbContext.Database.CloseConnectionAsync();
-            }
-            catch (Exception ex)
-            {
-                html.AppendLine($"<p class='error'>❌ Erreur de connexion: {ex.Message}</p>");
-            }
+            await dbContext.Database.OpenConnectionAsync();
+            html.AppendLine("<p class='success'>✅ Connexion à la base réussie</p>");
+            await dbContext.Database.CloseConnectionAsync();
+        }
+        catch (Exception ex)
+        {
+            html.AppendLine($"<p class='error'>❌ Erreur de connexion: {ex.Message}</p>");
+        }
 
-            // Test 2: Structure de la table Users
-            html.AppendLine("<h2>2. Structure de la table Users</h2>");
-            try
-            {
-                var columns = await dbContext.Database.SqlQueryRaw<string>(
-                    "SELECT column_name || ' :: ' || data_type || ' ' || " +
-                    "CASE WHEN is_nullable = 'NO' THEN 'NOT NULL' ELSE '' END " +
-                    "FROM information_schema.columns " +
-                    "WHERE table_name = 'Users' ORDER BY ordinal_position")
-                    .ToListAsync();
+        // Test 2: Structure de la table Users
+        html.AppendLine("<h2>2. Structure de la table Users</h2>");
+        try
+        {
+            var columns = await dbContext.Database.SqlQueryRaw<string>(
+                "SELECT column_name || ' :: ' || data_type || ' ' || " +
+                "CASE WHEN is_nullable = 'NO' THEN 'NOT NULL' ELSE '' END " +
+                "FROM information_schema.columns " +
+                "WHERE table_name = 'Users' ORDER BY ordinal_position")
+                .ToListAsync();
 
-                if (columns.Any())
+            if (columns.Any())
+            {
+                html.AppendLine("<ul>");
+                foreach (var column in columns)
                 {
-                    html.AppendLine("<ul>");
-                    foreach (var column in columns)
-                    {
-                        html.AppendLine($"<li>{column}</li>");
-                    }
-                    html.AppendLine("</ul>");
+                    html.AppendLine($"<li>{column}</li>");
                 }
-                else
-                {
-                    html.AppendLine("<p class='error'>❌ Table Users non trouvée</p>");
-                }
+                html.AppendLine("</ul>");
             }
-            catch (Exception ex)
+            else
             {
-                html.AppendLine($"<p class='error'>❌ Erreur: {ex.Message}</p>");
-            }
-
-            // Test 3: Test d'insertion
-            html.AppendLine("<h2>3. Test d'insertion</h2>");
-            try
-            {
-                var testUsername = "test_" + Guid.NewGuid().ToString().Substring(0, 8);
-                var testEmail = testUsername + "@test.com";
-
-                // Insérez directement avec SQL pour éviter les problèmes EF
-                var sql = $"INSERT INTO \"Users\" (\"Username\", \"Email\", \"PasswordHash\", \"Role\", \"IsActive\", \"CreatedAt\") " +
-                         $"VALUES ('{testUsername}', '{testEmail}', '{BCrypt.Net.BCrypt.HashPassword("test123")}', 'Patient', true, CURRENT_TIMESTAMP)";
-
-                var rowsAffected = await dbContext.Database.ExecuteSqlRawAsync(sql);
-
-                if (rowsAffected > 0)
-                {
-                    html.AppendLine($"<p class='success'>✅ Insertion réussie: {testUsername}</p>");
-
-                    // Nettoyer
-                    await dbContext.Database.ExecuteSqlRawAsync($"DELETE FROM \"Users\" WHERE \"Username\" = '{testUsername}'");
-                    html.AppendLine("<p class='success'>✅ Nettoyage réussi</p>");
-                }
-                else
-                {
-                    html.AppendLine("<p class='error'>❌ Aucune ligne insérée</p>");
-                }
-            }
-            catch (Exception ex)
-            {
-                html.AppendLine($"<p class='error'>❌ Erreur d'insertion: {ex.Message}</p>");
-                html.AppendLine($"<pre>{ex.StackTrace}</pre>");
-            }
-
-            // Test 4: Vérifier les contraintes
-            html.AppendLine("<h2>4. Contraintes de la table Users</h2>");
-            try
-            {
-                var constraints = await dbContext.Database.SqlQueryRaw<string>(
-                    "SELECT conname || ' : ' || pg_get_constraintdef(oid) " +
-                    "FROM pg_constraint " +
-                    "WHERE conrelid = 'public.\"Users\"'::regclass")
-                    .ToListAsync();
-
-                if (constraints.Any())
-                {
-                    html.AppendLine("<ul>");
-                    foreach (var constraint in constraints)
-                    {
-                        html.AppendLine($"<li>{constraint}</li>");
-                    }
-                    html.AppendLine("</ul>");
-                }
-                else
-                {
-                    html.AppendLine("<p>Aucune contrainte trouvée</p>");
-                }
-            }
-            catch (Exception ex)
-            {
-                html.AppendLine($"<p class='error'>❌ Erreur: {ex.Message}</p>");
-            }
-
-            // Test 5: Données existantes
-            html.AppendLine("<h2>5. Utilisateurs existants</h2>");
-            try
-            {
-                var users = await dbContext.Users
-                    .Select(u => new { u.Id, u.Username, u.Email, u.Role })
-                    .Take(10)
-                    .ToListAsync();
-
-                if (users.Any())
-                {
-                    html.AppendLine("<table border='1' cellpadding='5'>");
-                    html.AppendLine("<tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th></tr>");
-                    foreach (var user in users)
-                    {
-                        html.AppendLine($"<tr><td>{user.Id}</td><td>{user.Username}</td><td>{user.Email}</td><td>{user.Role}</td></tr>");
-                    }
-                    html.AppendLine("</table>");
-                }
-                else
-                {
-                    html.AppendLine("<p>Aucun utilisateur trouvé</p>");
-                }
-            }
-            catch (Exception ex)
-            {
-                html.AppendLine($"<p class='error'>❌ Erreur: {ex.Message}</p>");
+                html.AppendLine("<p class='error'>❌ Table Users non trouvée</p>");
             }
         }
         catch (Exception ex)
         {
-            html.AppendLine($"<h2 class='error'>❌ ERREUR GÉNÉRALE</h2>");
-            html.AppendLine($"<p>{ex.Message}</p>");
+            html.AppendLine($"<p class='error'>❌ Erreur: {ex.Message}</p>");
+        }
+
+        // Test 3: Test d'insertion
+        html.AppendLine("<h2>3. Test d'insertion</h2>");
+        try
+        {
+            var testUsername = "test_" + Guid.NewGuid().ToString().Substring(0, 8);
+            var testEmail = testUsername + "@test.com";
+
+            // Insérez directement avec SQL pour éviter les problèmes EF
+            var sql = $"INSERT INTO \"Users\" (\"Username\", \"Email\", \"PasswordHash\", \"Role\", \"IsActive\", \"CreatedAt\") " +
+                     $"VALUES ('{testUsername}', '{testEmail}', '{BCrypt.Net.BCrypt.HashPassword("test123")}', 'Patient', true, CURRENT_TIMESTAMP)";
+
+            var rowsAffected = await dbContext.Database.ExecuteSqlRawAsync(sql);
+
+            if (rowsAffected > 0)
+            {
+                html.AppendLine($"<p class='success'>✅ Insertion réussie: {testUsername}</p>");
+
+                // Nettoyer
+                await dbContext.Database.ExecuteSqlRawAsync($"DELETE FROM \"Users\" WHERE \"Username\" = '{testUsername}'");
+                html.AppendLine("<p class='success'>✅ Nettoyage réussi</p>");
+            }
+            else
+            {
+                html.AppendLine("<p class='error'>❌ Aucune ligne insérée</p>");
+            }
+        }
+        catch (Exception ex)
+        {
+            html.AppendLine($"<p class='error'>❌ Erreur d'insertion: {ex.Message}</p>");
             html.AppendLine($"<pre>{ex.StackTrace}</pre>");
         }
 
-        html.AppendLine("</body></html>");
-        await context.Response.WriteAsync(html.ToString());
-    });
-}
+        // Test 4: Vérifier les contraintes
+        html.AppendLine("<h2>4. Contraintes de la table Users</h2>");
+        try
+        {
+            var constraints = await dbContext.Database.SqlQueryRaw<string>(
+                "SELECT conname || ' : ' || pg_get_constraintdef(oid) " +
+                "FROM pg_constraint " +
+                "WHERE conrelid = 'public.\"Users\"'::regclass")
+                .ToListAsync();
+
+            if (constraints.Any())
+            {
+                html.AppendLine("<ul>");
+                foreach (var constraint in constraints)
+                {
+                    html.AppendLine($"<li>{constraint}</li>");
+                }
+                html.AppendLine("</ul>");
+            }
+            else
+            {
+                html.AppendLine("<p>Aucune contrainte trouvée</p>");
+            }
+        }
+        catch (Exception ex)
+        {
+            html.AppendLine($"<p class='error'>❌ Erreur: {ex.Message}</p>");
+        }
+
+        // Test 5: Données existantes
+        html.AppendLine("<h2>5. Utilisateurs existants</h2>");
+        try
+        {
+            var users = await dbContext.Users
+                .Select(u => new { u.Id, u.Username, u.Email, u.Role })
+                .Take(10)
+                .ToListAsync();
+
+            if (users.Any())
+            {
+                html.AppendLine("<table border='1' cellpadding='5'>");
+                html.AppendLine("<tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th></tr>");
+                foreach (var user in users)
+                {
+                    html.AppendLine($"<tr><td>{user.Id}</td><td>{user.Username}</td><td>{user.Email}</td><td>{user.Role}</td></tr>");
+                }
+                html.AppendLine("</table>");
+            }
+            else
+            {
+                html.AppendLine("<p>Aucun utilisateur trouvé</p>");
+            }
+        }
+        catch (Exception ex)
+        {
+            html.AppendLine($"<p class='error'>❌ Erreur: {ex.Message}</p>");
+        }
+    }
+    catch (Exception ex)
+    {
+        html.AppendLine($"<h2 class='error'>❌ ERREUR GÉNÉRALE</h2>");
+        html.AppendLine($"<p>{ex.Message}</p>");
+        html.AppendLine($"<pre>{ex.StackTrace}</pre>");
+    }
+
+    html.AppendLine("</body></html>");
+    await context.Response.WriteAsync(html.ToString());
+
+});
 
 app.Run();

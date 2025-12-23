@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MedicalTriageSystem.Controllers
 {
-    [AllowAnonymous] // Permet l'accès sans authentification
+    [AllowAnonymous]
     public class HomeController : Controller
     {
         public IActionResult Index()
@@ -31,20 +31,23 @@ namespace MedicalTriageSystem.Controllers
             return View();
         }
 
-        [Authorize] // Nécessite l'authentification
+        [Authorize]
         public IActionResult Dashboard()
         {
-            // Rediriger vers le dashboard approprié selon le rôle
-            if (User.IsInRole("Admin") || User.IsInRole("Doctor"))
+            if (User.IsInRole("Admin"))
             {
-                return RedirectToAction("Index", "Dashboard");
+                return RedirectToAction("Index", "Dashboard"); // Dashboard Admin
+            }
+            else if (User.IsInRole("Doctor"))
+            {
+                return RedirectToAction("Index", "DoctorDashboard"); // Dashboard Médecin
             }
             else if (User.IsInRole("Patient"))
             {
-                return RedirectToAction("Dashboard", "Patient");
+                return RedirectToAction("Index", "PatientDashboard"); // Dashboard Patient
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Home");
         }
     }
 }

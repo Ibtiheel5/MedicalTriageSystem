@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// Models/Appointment.cs
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedicalTriageSystem.Models
@@ -11,56 +12,36 @@ namespace MedicalTriageSystem.Models
         public int Id { get; set; }
 
         [Required]
-        [ForeignKey("Patient")]
         public int PatientId { get; set; }
 
-        [ForeignKey("Doctor")]
         public int? DoctorId { get; set; }
 
         [Required]
-        [Display(Name = "Date de rendez-vous")]
-        public DateTime AppointmentDate { get; set; } // Renommé pour correspondre aux vues
+        [Column(TypeName = "date")]
+        public DateTime Date { get; set; }
 
-        // Ajoutez ces propriétés si vos vues les utilisent
-        [Display(Name = "Date programmée")]
-        public DateTime ScheduledDate
-        {
-            get => AppointmentDate;
-            set => AppointmentDate = value;
-        }
+        [Column(TypeName = "time without time zone")]
+        public TimeSpan? StartTime { get; set; } // ✅ StartTime avec 't'
 
-        [Display(Name = "Heure de début")]
-        public TimeSpan StartTime
-        {
-            get => AppointmentDate.TimeOfDay;
-            set => AppointmentDate = AppointmentDate.Date + value;
-        }
+        [Column(TypeName = "time without time zone")]
+        public TimeSpan? EndTime { get; set; }
 
-        [Display(Name = "Heure de fin")]
-        public TimeSpan EndTime { get; set; } // Vous pouvez calculer ou stocker
+        [Required]
+        [Column(TypeName = "text")]
+        public string Reason { get; set; } = string.Empty;
 
-        [StringLength(50)]
-        [Display(Name = "Type")]
-        public string Type { get; set; } = "Consultation"; // Consultation, Suivi, Urgence
+        [Column(TypeName = "text")]
+        public string Status { get; set; } = "Scheduled";
 
-        [StringLength(20)]
-        [Display(Name = "Statut")]
-        public string Status { get; set; } = "Scheduled"; // Programmé, Confirmé, Annulé, Terminé
+        [Column(TypeName = "text")]
+        public string Notes { get; set; } = string.Empty;
 
-        [Display(Name = "Raison")]
-        public string Reason { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        [Display(Name = "Notes")]
-        public string Notes { get; set; }
-
-        [Display(Name = "Créé le")]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
-        [Display(Name = "Patient")]
-        public virtual Patient Patient { get; set; }
-
-        [Display(Name = "Médecin")]
-        public virtual Doctor Doctor { get; set; }
+        public virtual Patient Patient { get; set; } = null!;
+        public virtual Doctor? Doctor { get; set; }
     }
 }

@@ -1,0 +1,147 @@
+﻿@model MedicalTriageSystem.Models.ViewModels.PatientDashboardViewModel
+@{
+    ViewData["Title"] = "Mon Tableau de Bord Patient";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-4 text-center">
+                    <h2 class="mb-0">
+                        <i class="bi bi-person-circle me-3 fs-1"></i>Bienvenue, @Model.Patient.Name !
+                    </h2>
+                    <p class="mb-0 mt-2 opacity-75">Votre espace santé personnalisé</p>
+                </div>
+                <div class="card-body p-5">
+                    <!-- Cartes résumées -->
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-4">
+                            <div class="card border-info shadow-sm h-100 text-center">
+                                <div class="card-body">
+                                    <i class="bi bi-clipboard2-pulse fs-1 text-info mb-3"></i>
+                                    <h5 class="card-title">Dernier Triage</h5>
+                                    @if (Model.LastTriage != null)
+                                    {
+                                        <p class="fw-bold fs-4 text-@(Model.LastTriage.Level == "Urgent" ? "danger" : "primary")">
+                                            @Model.LastTriage.Level
+                                        </p>
+                                        <small class="text-muted">@Model.LastTriage.CreatedAt.ToString("dd/MM/yyyy")</small>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted fs-5">Aucun triage</p>
+                                        <a asp-controller="Triage" asp-action="Index" class="btn btn-info btn-sm mt-3">Commencer un triage</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-success shadow-sm h-100 text-center">
+                                <div class="card-body">
+                                    <i class="bi bi-calendar-check fs-1 text-success mb-3"></i>
+                                    <h5 class="card-title">Prochains RDV</h5>
+                                    <p class="fw-bold fs-3">@Model.UpcomingAppointments.Count</p>
+                                    @if (Model.UpcomingAppointments.Any())
+                                    {
+                                        <small class="text-muted">Prochain : @Model.UpcomingAppointments.First().Date.ToString("dd/MM/yyyy")</small>
+                                    }
+                                    <a asp-controller="Appointments" asp-action="Create" class="btn btn-success btn-sm mt-3">Prendre un RDV</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-warning shadow-sm h-100 text-center">
+                                <div class="card-body">
+                                    <i class="bi bi-activity fs-1 text-warning mb-3"></i>
+                                    <h5 class="card-title">Symptômes récents</h5>
+                                    <p class="fw-bold fs-3">@Model.RecentSymptoms.Count</p>
+                                    @if (Model.RecentSymptoms.Any())
+                                    {
+                                        <small class="text-muted">@Model.RecentSymptoms.First().Name</small>
+                                    }
+                                    <a asp-controller="Symptoms" asp-action="Index" class="btn btn-warning btn-sm mt-3">Ajouter un symptôme</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Liste des RDV -->
+                    @if (Model.UpcomingAppointments.Any())
+                    {
+                        <h4 class="mb-3 text-primary"><i class="bi bi-calendar-event me-2"></i>Mes prochains rendez-vous</h4>
+                        <div class="table-responsive mb-5">
+                            <table class="table table-hover">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Heure</th>
+                                        <th>Médecin</th>
+                                        <th>Raison</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var appt in Model.UpcomingAppointments)
+                                    {
+                                        <tr>
+                                            <td>@appt.Date.ToString("dd/MM/yyyy")</td>
+                                            <td>@appt.StartTime?.ToString(@"hh\:mm")</td>
+                                            <td>@(appt.Doctor?.Name ?? "Non assigné")</td>
+                                            <td>@appt.Reason</td>
+                                            <td><span class="badge bg-success">@appt.Status</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center mb-5">
+                            <i class="bi bi-calendar-x fs-3 me-2"></i>Aucun rendez-vous prévu. Prenez-en un maintenant !
+                        </div>
+                    }
+
+                    <!-- Symptômes récents -->
+                    @if (Model.RecentSymptoms.Any())
+                    {
+                        <h4 class="mb-3 text-warning"><i class="bi bi-activity me-2"></i>Mes symptômes récents</h4>
+                        <ul class="list-group mb-5">
+                            @foreach (var symptom in Model.RecentSymptoms)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>@symptom.Name</strong>
+                                        <small class="text-muted d-block">@symptom.Description</small>
+                                    </div>
+                                    <span class="badge bg-warning">@symptom.Severity/10</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center mb-5">
+                            <i class="bi bi-activity fs-3 me-2"></i>Aucun symptôme récent. Ajoutez-en si besoin.
+                        </div>
+                    }
+
+                    <!-- Boutons d'action -->
+                    <div class="text-center">
+                        <a asp-controller="Triage" asp-action="Quick" class="btn btn-primary btn-lg mx-2">
+                            <i class="bi bi-lightning me-2"></i>Triage Rapide
+                        </a>
+                        <a asp-controller="Triage" asp-action="Index" class="btn btn-info btn-lg mx-2">
+                            <i class="bi bi-file-medical me-2"></i>Triage Complet
+                        </a>
+                        <a asp-controller="Appointments" asp-action="Create" class="btn btn-success btn-lg mx-2">
+                            <i class="bi bi-calendar-plus me-2"></i>Prendre RDV
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

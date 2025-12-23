@@ -11,16 +11,16 @@ namespace MedicalTriageSystem.Models
         public int Id { get; set; }
 
         [Required]
-        [StringLength(100)]
-        public string Username { get; set; }
+        [StringLength(50)]
+        public string Username { get; set; } = string.Empty;
 
         [Required]
         [EmailAddress]
         [StringLength(100)]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required]
-        public string PasswordHash { get; set; }
+        public string PasswordHash { get; set; } = string.Empty;
 
         [Required]
         [StringLength(20)]
@@ -28,10 +28,10 @@ namespace MedicalTriageSystem.Models
 
         public bool IsActive { get; set; } = true;
 
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
-        public virtual Patient Patient { get; set; }
-        public virtual Doctor Doctor { get; set; }
+        public virtual Patient? Patient { get; set; }
+        public virtual Doctor? Doctor { get; set; }
     }
 }

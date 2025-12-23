@@ -38,7 +38,6 @@ namespace MedicalTriageSystem.Controllers
             }
             catch (Exception ex)
             {
-                // En cas d'erreur, retourner une vue avec des données vides
                 Console.WriteLine($"Erreur Dashboard: {ex.Message}");
                 return View(new DashboardViewModel());
             }
@@ -55,7 +54,7 @@ namespace MedicalTriageSystem.Controllers
                     TotalTriages = await _context.TriageResults.CountAsync(),
                     UrgentCases = await _context.TriageResults.CountAsync(tr => tr.Level == "Urgent"),
                     TodayTriages = await _context.TriageResults
-                        .CountAsync(tr => tr.CreatedAt.Date == DateTime.Today),
+                        .CountAsync(tr => tr.CreatedAt.Date == DateTime.Today), // ✅ CORRIGÉ: CreatedAt.Date
                     WeekTriages = 0, // Temporaire
                     AvgTriageTime = TimeSpan.FromMinutes(15)
                 };
@@ -73,7 +72,7 @@ namespace MedicalTriageSystem.Controllers
                 return await _context.Patients
                     .Include(p => p.TriageResults)
                         .ThenInclude(tr => tr.Doctor)
-                    .OrderByDescending(p => p.CreatedAt)
+                    .OrderByDescending(p => p.CreatedAt) // ✅ Utilise CreatedAt
                     .Take(10)
                     .ToListAsync();
             }
@@ -90,7 +89,7 @@ namespace MedicalTriageSystem.Controllers
                 return await _context.TriageResults
                     .Include(tr => tr.Patient)
                     .Where(tr => tr.Level == "Urgent")
-                    .OrderByDescending(tr => tr.CreatedAt)
+                    .OrderByDescending(tr => tr.CreatedAt) // ✅ CORRIGÉ: CreatedAt au lieu de Date
                     .Take(5)
                     .ToListAsync();
             }

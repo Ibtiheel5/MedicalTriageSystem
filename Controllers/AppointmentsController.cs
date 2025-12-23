@@ -21,14 +21,13 @@ namespace MedicalTriageSystem.Controllers
             var appointments = await _context.Appointments
                 .Include(a => a.Patient)
                 .Include(a => a.Doctor)
-                .OrderBy(a => a.ScheduledDate) // ✅ Utiliser ScheduledDate au lieu de Date
-                .ThenBy(a => a.StartTime)
+                .OrderBy(a => a.Date) // ✅ Utiliser Date (nom de colonne dans la table)
+                .ThenBy(a => a.StartTime) // ✅ Utiliser StarTime (nom de colonne)
                 .ToListAsync();
 
             return View(appointments);
         }
 
-        // Supprimer async ici car il n'y a pas d'await
         public IActionResult Calendar()
         {
             return View();
@@ -43,16 +42,21 @@ namespace MedicalTriageSystem.Controllers
                 .Select(a => new
                 {
                     id = a.Id,
-                    title = $"{a.Patient.Name} - {a.Doctor.Name}",
-                    start = a.ScheduledDate.ToString("yyyy-MM-dd") + "T" + a.StartTime.ToString(@"hh\:mm\:ss"), // ✅ Utiliser ScheduledDate
-                    end = a.ScheduledDate.ToString("yyyy-MM-dd") + "T" + a.EndTime.ToString(@"hh\:mm\:ss"), // ✅ Utiliser ScheduledDate
+                    title = a.Doctor != null
+                        ? $"{a.Patient.Name} - {a.Doctor.Name}"
+                        : a.Patient.Name,
+                    start = a.Date.ToString("yyyy-MM-dd") + "T" +
+                           (a.StartTime != null ? a.StartTime.Value.ToString(@"hh\:mm\:ss") : "09:00:00"),
+                    end = a.Date.ToString("yyyy-MM-dd") + "T" +
+                         (a.EndTime != null ? a.EndTime.Value.ToString(@"hh\:mm\:ss") : "09:30:00"),
                     color = GetAppointmentColor(a.Status),
                     extendedProps = new
                     {
                         patient = a.Patient.Name,
-                        doctor = a.Doctor.Name,
-                        reason = a.Reason,
-                        status = a.Status
+                        doctor = a.Doctor != null ? a.Doctor.Name : "Non assigné", // ✅ CORRECTION
+                        reason = a.Reason, // ✅ Utiliser Reason (nom de colonne)
+                        status = a.Status,
+                        notes = a.Notes
                     }
                 })
                 .ToListAsync();
@@ -69,6 +73,48 @@ namespace MedicalTriageSystem.Controllers
                 "Cancelled" => "#e53e3e",
                 _ => "#a0aec0"
             };
+        }
+
+        // Méthodes supplémentaires
+        public async Task<IActionResult> Details(int id)
+        {
+            var appointment = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (appointment == null)
+            {
+                return NotFound();
+            }
+
+            return View(appointment);
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.Patients = _context.Patients.ToList();
+            ViewBag.Doctors = _context.Doctors.ToList();
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Appointment appointment)
+        {
+            if (ModelState.IsValid)
+            {
+                appointment.CreatedAt = DateTime.UtcNow;
+                appointment.UpdatedAt = DateTime.UtcNow;
+                _context.Appointments.Add(appointment);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewBag.Patients = _context.Patients.ToList();
+            ViewBag.Doctors = _context.Doctors.ToList();
+            return View(appointment);
         }
     }
 }

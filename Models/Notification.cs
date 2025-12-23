@@ -12,13 +12,13 @@ namespace MedicalTriageSystem.Models
 
         [Required]
         [StringLength(100)]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty; // ✅ Initialisé
 
         [Required]
-        public string Message { get; set; }
+        public string Message { get; set; } = string.Empty; // ✅ Initialisé
 
         [StringLength(50)]
-        public string Type { get; set; } // Info, Warning, Success, Danger
+        public string Type { get; set; } = "Info"; // ✅ Valeur par défaut
 
         [ForeignKey("User")]
         public int? UserId { get; set; }
@@ -31,13 +31,13 @@ namespace MedicalTriageSystem.Models
 
         public bool IsRead { get; set; } = false;
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // ✅ CORRECTION: UtcNow
 
         public DateTime? ReadAt { get; set; }
 
         // Navigation properties
-        public virtual User User { get; set; }
-        public virtual Patient Patient { get; set; }
-        public virtual Doctor Doctor { get; set; }
+        public virtual User? User { get; set; }
+        public virtual Patient? Patient { get; set; }
+        public virtual Doctor? Doctor { get; set; }
     }
 }

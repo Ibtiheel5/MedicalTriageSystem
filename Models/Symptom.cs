@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// Models/Symptom.cs
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedicalTriageSystem.Models
@@ -11,71 +12,29 @@ namespace MedicalTriageSystem.Models
         public int Id { get; set; }
 
         [Required]
-        [ForeignKey("Patient")]
-        [Display(Name = "Patient")]
         public int PatientId { get; set; }
 
         [Required]
-        [StringLength(100)]
-        [Display(Name = "Nom")]
-        public string Name { get; set; }
+        [Column(TypeName = "text")]
+        public string Name { get; set; } = string.Empty; // ✅ Colonne Name (text)
 
-        [Display(Name = "Description")]
-        public string Description { get; set; }
+        [Column(TypeName = "text")]
+        public string Description { get; set; } = string.Empty; // ✅ Colonne Description (text)
 
-        [StringLength(50)]
-        [Display(Name = "Catégorie")]
-        public string Category { get; set; } // Ajouté: Cardiaque, Respiratoire, Digestif, etc.
+        [Required]
+        public int Severity { get; set; } = 3; // ✅ Colonne Severity (integer), 1-5 échelle
 
-        [StringLength(20)]
-        [Display(Name = "Sévérité")]
-        public string Severity { get; set; } = "Modéré"; // Léger, Modéré, Sévère
+        [Column(TypeName = "text")]
+        public string Category { get; set; } = "General"; // ✅ Colonne Category (text)
 
-        [Display(Name = "Date de début")]
-        public DateTime StartDate { get; set; } = DateTime.Now;
+        [Required]
+        [Column(TypeName = "timestamp without time zone")]
+        public DateTime Date { get; set; } = DateTime.UtcNow; // ✅ Colonne Date (pas StartDate)
 
-        // Alias pour 'Date' si les vues l'utilisent
-        [Display(Name = "Date")]
-        [NotMapped] // Ne pas mapper à la base, c'est un alias
-        public DateTime Date
-        {
-            get => StartDate;
-            set => StartDate = value;
-        }
-
-        [Display(Name = "Date de fin")]
-        public DateTime? EndDate { get; set; }
-
-        [Display(Name = "Durée")]
-        public string Duration { get; set; } // Aigu (<7j), Subaigu (7-30j), Chronique (>30j)
-
-        [Display(Name = "Fréquence")]
-        public string Frequency { get; set; } // Constant, Intermittent, Occasionnel
-
-        [Display(Name = "Intensité")]
-        [Range(1, 10)]
-        public int? Intensity { get; set; } // 1-10
-
-        [Display(Name = "Facteurs aggravants")]
-        public string AggravatingFactors { get; set; }
-
-        [Display(Name = "Facteurs soulageants")]
-        public string RelievingFactors { get; set; }
-
-        [Display(Name = "Actif")]
-        public bool IsActive { get; set; } = true;
-
-        [Display(Name = "Notes")]
-        public string Notes { get; set; }
-
-        [Display(Name = "Créé le")]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-
-        [Display(Name = "Mis à jour le")]
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        // ⚠️ PAS de AggravatingFactors, RelievingFactors, StartDate, EndDate, etc.
+        // Ces colonnes n'existent pas dans votre table
 
         // Navigation property
-        [Display(Name = "Patient")]
-        public virtual Patient Patient { get; set; }
+        public virtual Patient Patient { get; set; } = null!;
     }
 }

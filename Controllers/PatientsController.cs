@@ -1,4 +1,4 @@
-using MedicalTriageSystem.Data;
+﻿using MedicalTriageSystem.Data;
 using MedicalTriageSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +20,7 @@ namespace MedicalTriageSystem.Controllers
                 .Include(p => p.Symptoms)
                 .Include(p => p.TriageResults)
                     .ThenInclude(tr => tr.Doctor)
-                .OrderByDescending(p => p.CreatedAt)
+                .OrderByDescending(p => p.CreatedAt) // ✅ CORRIGÉ
                 .ToListAsync();
 
             return View(patients);

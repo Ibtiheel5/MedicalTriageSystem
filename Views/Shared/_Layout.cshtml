@@ -74,8 +74,9 @@
                             @if (User.IsInRole("Patient"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Patient" ? "active" : "")"
-                                       asp-controller="Patient" asp-action="Dashboard">
+                                    <!-- CORRECTION: Changé de asp-controller="Patient" à asp-controller="PatientDashboard" -->
+                                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "PatientDashboard" ? "active" : "")"
+                                       asp-controller="PatientDashboard" asp-action="Dashboard">
                                         <i class="bi bi-person-circle me-1"></i>Mon Espace
                                     </a>
                                 </li>

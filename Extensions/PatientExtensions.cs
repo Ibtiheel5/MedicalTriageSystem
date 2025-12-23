@@ -11,7 +11,7 @@ namespace MedicalTriageSystem.Extensions
                 return null;
 
             return patient.TriageResults
-                .OrderByDescending(t => t.Date)
+                .OrderByDescending(t => t.CreatedAt) // ⬅️ CHANGÉ: Utilisez CreatedAt au lieu de Date
                 .FirstOrDefault();
         }
 

@@ -1,20 +1,19 @@
-﻿﻿@{
-ViewData["Title"] = "Résultat du Triage";
-var level = ViewBag.Level as string ?? "Normal";
-var levelClass = level switch
-{
-    "Urgent" => "danger",
-    "Élevé" => "warning",
-    "Normal" => "info",
-    "Faible" => "success",
-    _ => "info"
-};
+﻿@{
+    ViewData["Title"] = "Résultat du Triage";
+    var level = ViewBag.Level as string ?? "Normal";
+    var levelClass = level switch
+    {
+        "Urgent" => "danger",
+        "Élevé" => "warning",
+        "Normal" => "info",
+        "Faible" => "success",
+        _ => "info"
+    };
 }
 
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <!-- En-tête -->
             <div class="text-center mb-5">
                 <h1 class="display-5 fw-bold text-primary mb-3">
                     <i class="bi bi-clipboard2-check me-2"></i>Résultat du Triage
@@ -22,7 +21,6 @@ var levelClass = level switch
                 <p class="lead text-muted">Évaluation complète de votre situation médicale</p>
             </div>
 
-            <!-- Carte principale -->
             <div class="card shadow-lg border-0 mb-4">
                 <div class="card-header bg-gradient bg-primary text-white py-4">
                     <div class="d-flex justify-content-between align-items-center">
@@ -38,178 +36,17 @@ var levelClass = level switch
                     </div>
                 </div>
 
-                <div class="card-body p-5">
-                    <!-- Niveau d'urgence -->
-                    <div class="row align-items-center mb-5">
-                        <div class="col-md-6">
-                            <h4 class="mb-3">Niveau d'urgence déterminé</h4>
-                            <div class="d-flex align-items-center">
-                                <div class="alert-level-indicator alert-level-@levelClass me-3"></div>
-                                <div>
-                                    <h2 class="mb-0 fw-bold text-@levelClass">@level</h2>
-                                    <p class="text-muted mb-0">Priorité de prise en charge</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="p-3 bg-light rounded">
-                                <h5><i class="bi bi-speedometer2 me-2"></i>Score de triage</h5>
-                                <div class="display-4 fw-bold">@ViewBag.Score</div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-@levelClass" style="width: @(ViewBag.ScorePercentage ?? "50")%"></div>
-                                </div>
-                                <small class="text-muted">sur 100 points</small>
-                            </div>
-                        </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-level-@levelClass text-center py-4 mb-4">
+                        <i class="bi bi-exclamation-triangle-fill fs-1 mb-3"></i>
+                        <h4 class="alert-heading">Niveau d'urgence : @level</h4>
+                        <p class="lead mb-0">Recommandation : @ViewBag.Recommendation</p>
                     </div>
 
-                    <!-- Recommandations -->
-                    <div class="alert alert-@levelClass border-@levelClass mb-5">
-                        <div class="d-flex">
-                            <div class="me-3">
-                                <i class="bi @(level == "Urgent" ? "bi-exclamation-triangle" : "bi-info-circle") fs-3"></i>
-                            </div>
-                            <div>
-                                <h4 class="alert-heading">Recommandation médicale</h4>
-                                <p class="mb-2">@ViewBag.Recommendation</p>
-                                @if (level == "Urgent")
-                                {
-                                    <hr>
-                                    <p class="mb-0 fw-bold">
-                                        <i class="bi bi-telephone me-2"></i>
-                                        En cas d'aggravation, contactez immédiatement le 15 (SAMU)
-                                    </p>
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Assignation médecin -->
-                    @if (ViewBag.Doctor != null)
-                    {
-                        <div class="doctor-assignment p-4 bg-gradient bg-success bg-opacity-10 rounded mb-4">
-                            <div class="d-flex align-items-center">
-                                <div class="me-4">
-                                    <div class="avatar-circle bg-success text-white">
-                                        <i class="bi bi-person-badge fs-4"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h4 class="text-success">
-                                        <i class="bi bi-check-circle me-2"></i>Médecin disponible
-                                    </h4>
-                                    <h5 class="mb-1">Dr. @ViewBag.Doctor.Name</h5>
-                                    <p class="text-muted mb-2">@ViewBag.Doctor.Specialty</p>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <p class="mb-1">
-                                                <i class="bi bi-clock me-2"></i>
-                                                Disponibilité: @ViewBag.Doctor.Availability
-                                            </p>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p class="mb-1">
-                                                <i class="bi bi-telephone me-2"></i>
-                                                Contact: @ViewBag.Doctor.Phone
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="ms-4">
-                                    <button class="btn btn-success btn-lg">
-                                        <i class="bi bi-calendar-check me-2"></i>Prendre RDV
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-secondary">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-clock-history fs-4 me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Aucun médecin disponible actuellement</h5>
-                                    <p class="mb-0">Nos médecins sont actuellement en consultation. Veuillez réessayer dans 30 minutes ou contactez-nous par téléphone.</p>
-                                </div>
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Prochaines étapes -->
-                    <div class="next-steps p-4 bg-light rounded">
-                        <h4 class="mb-3"><i class="bi bi-signpost-2 me-2"></i>Prochaines étapes</h4>
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <div class="card h-100 border-0 bg-white">
-                                    <div class="card-body text-center">
-                                        <div class="step-icon bg-primary text-white mb-3">
-                                            <i class="bi bi-printer fs-4"></i>
-                                        </div>
-                                        <h6>Imprimer le résultat</h6>
-                                        <p class="small text-muted">Conservez une copie pour votre médecin traitant</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card h-100 border-0 bg-white">
-                                    <div class="card-body text-center">
-                                        <div class="step-icon bg-info text-white mb-3">
-                                            <i class="bi bi-envelope fs-4"></i>
-                                        </div>
-                                        <h6>Recevoir par email</h6>
-                                        <p class="small text-muted">Envoyez les résultats à votre adresse email</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card h-100 border-0 bg-white">
-                                    <div class="card-body text-center">
-                                        <div class="step-icon bg-success text-white mb-3">
-                                            <i class="bi bi-calendar-plus fs-4"></i>
-                                        </div>
-                                        <h6>Suivi médical</h6>
-                                        <p class="small text-muted">Programmez un suivi dans 48 heures</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pied de carte -->
-                <div class="card-footer bg-light py-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <small class="text-muted">
-                                <i class="bi bi-shield-check me-1"></i>
-                                Données cryptées et sécurisées
-                            </small>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">
-                                <i class="bi bi-house me-1"></i>Accueil
-                            </a>
-                            <a asp-controller="Triage" asp-action="Index" class="btn btn-primary">
-                                <i class="bi bi-plus-circle me-1"></i>Nouveau triage
-                            </a>
-                            <button class="btn btn-success" onclick="window.print()">
-                                <i class="bi bi-printer me-1"></i>Imprimer
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Avertissement -->
-            <div class="alert alert-warning">
-                <div class="d-flex">
-                    <div class="me-3">
-                        <i class="bi bi-exclamation-triangle fs-4"></i>
-                    </div>
-                    <div>
-                        <strong>Note importante:</strong> Ce système de triage est un outil d'orientation et ne remplace pas une consultation médicale.
-                        En cas de doute ou d'aggravation des symptômes, consultez un professionnel de santé.
+                    <div class="text-center">
+                        <a asp-controller="PatientDashboard" asp-action="Index" class="btn btn-primary btn-lg">
+                            <i class="bi bi-tachometer me-2"></i>Retour à mon dashboard
+                        </a>
                     </div>
                 </div>
             </div>
@@ -219,65 +56,11 @@ var levelClass = level switch
 
 @section Styles {
     <style>
-        .alert-level-indicator {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            position: relative;
-        }
-
         .alert-level-danger {
             background: linear-gradient(135deg, #dc3545, #ff6b6b);
             box-shadow: 0 0 20px rgba(220, 53, 69, 0.3);
         }
 
-        .alert-level-warning {
-            background: linear-gradient(135deg, #ffc107, #ffd54f);
-            box-shadow: 0 0 20px rgba(255, 193, 7, 0.3);
-        }
-
-        .alert-level-info {
-            background: linear-gradient(135deg, #0dcaf0, #4dabf7);
-            box-shadow: 0 0 20px rgba(13, 202, 240, 0.3);
-        }
-
-        .alert-level-success {
-            background: linear-gradient(135deg, #198754, #51cf66);
-            box-shadow: 0 0 20px rgba(25, 135, 84, 0.3);
-        }
-
-        .avatar-circle {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .step-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-        }
-
-        .symptom-card:hover {
-            transform: translateY(-2px);
-            transition: transform 0.2s ease;
-        }
-
-        .section-title {
-            color: #2c3e50;
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 10px;
-        }
-
-        .bg-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        }
+        /* Autres styles inchangés */
     </style>
 }

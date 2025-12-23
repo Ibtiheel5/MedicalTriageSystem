@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace MedicalTriageSystem.Data.Migrations
+namespace MedicalTriageSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251222132917_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251223152100_AddLicenseNumberToDoctor")]
+    partial class AddLicenseNumberToDoctor
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,35 +34,43 @@ namespace MedicalTriageSystem.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("date");
 
-                    b.Property<int>("DoctorId")
+                    b.Property<int?>("DoctorId")
                         .HasColumnType("integer");
 
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("interval");
+                    b.Property<TimeSpan?>("EndTime")
+                        .HasColumnType("time without time zone");
 
                     b.Property<string>("Notes")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("PatientId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Reason")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("ScheduledDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("interval");
+                    b.Property<TimeSpan?>("StartTime")
+                        .HasColumnType("time without time zone");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Scheduled");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("Id");
 
@@ -82,65 +90,92 @@ namespace MedicalTriageSystem.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Availability")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Email")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LicenseNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Phone")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Specialty")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int?>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Doctors");
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Availability = "Lun-Ven: 9h-18h",
-                            Email = "m.dubois@clinique.fr",
-                            IsAvailable = true,
-                            Name = "Dr. Martin Dubois",
-                            Phone = "01 23 45 67 89",
-                            Specialty = "Médecine Générale"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Availability = "24/7 - Urgences",
-                            Email = "s.laurent@clinique.fr",
-                            IsAvailable = true,
-                            Name = "Dr. Sophie Laurent",
-                            Phone = "01 98 76 54 32",
-                            Specialty = "Urgentiste"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Availability = "Mar-Jeu: 10h-16h",
-                            Email = "j.moreau@clinique.fr",
-                            IsAvailable = false,
-                            Name = "Dr. Jean Moreau",
-                            Phone = "01 12 34 56 78",
-                            Specialty = "Cardiologie"
-                        });
+            modelBuilder.Entity("MedicalTriageSystem.Models.MedicalRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("RecordDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("MedicalRecords");
                 });
 
             modelBuilder.Entity("MedicalTriageSystem.Models.Notification", b =>
@@ -152,7 +187,12 @@ namespace MedicalTriageSystem.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int?>("DoctorId")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsRead")
                         .HasColumnType("boolean");
@@ -161,21 +201,30 @@ namespace MedicalTriageSystem.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("PatientId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("ReadAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<int?>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DoctorId");
+
+                    b.HasIndex("PatientId");
 
                     b.HasIndex("UserId");
 
@@ -194,46 +243,44 @@ namespace MedicalTriageSystem.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Email")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Gender")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Phone")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Patients");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Age = 35,
-                            CreatedAt = new DateTime(2025, 12, 22, 14, 29, 16, 632, DateTimeKind.Local).AddTicks(1975),
-                            Email = "patient@example.com",
-                            Gender = "Homme",
-                            Name = "Jean Dupont",
-                            Phone = "06 12 34 56 78",
-                            UpdatedAt = new DateTime(2025, 12, 22, 14, 29, 16, 632, DateTimeKind.Local).AddTicks(1977),
-                            UserId = 3
-                        });
                 });
 
             modelBuilder.Entity("MedicalTriageSystem.Models.Symptom", b =>
@@ -245,15 +292,16 @@ namespace MedicalTriageSystem.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Category")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -263,9 +311,8 @@ namespace MedicalTriageSystem.Data.Migrations
                     b.Property<int>("PatientId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Severity")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Severity")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -283,17 +330,17 @@ namespace MedicalTriageSystem.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int?>("DoctorId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Level")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<int>("PatientId")
                         .HasColumnType("integer");
@@ -323,11 +370,14 @@ namespace MedicalTriageSystem.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -338,61 +388,36 @@ namespace MedicalTriageSystem.Data.Migrations
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.HasIndex("Email")
+                        .IsUnique();
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 22, 14, 29, 16, 309, DateTimeKind.Local).AddTicks(1231),
-                            Email = "admin@triagemed.com",
-                            IsActive = true,
-                            PasswordHash = "$2a$11$/adnyukiWuqZRLOuhcTLkOF4Lv3I.X0VzPxlTwK/rbVKrapWEDV4O",
-                            Role = "Admin",
-                            Username = "admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 22, 14, 29, 16, 471, DateTimeKind.Local).AddTicks(583),
-                            Email = "docteur@clinique.fr",
-                            IsActive = true,
-                            PasswordHash = "$2a$11$dNjJvEwwRA85rBElUQsvmu/cQfFUFaRmzdM0Vj3dOAyd5rpX8lxge",
-                            Role = "Doctor",
-                            Username = "docteur1"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 22, 14, 29, 16, 632, DateTimeKind.Local).AddTicks(1070),
-                            Email = "patient@example.com",
-                            IsActive = true,
-                            PasswordHash = "$2a$11$wL1uGh5Q/YlI4w4gRr4/KeOj0xLAuugdIRdSzh.r/gEuS/nKE6eR6",
-                            Role = "Patient",
-                            Username = "patient1"
-                        });
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("MedicalTriageSystem.Models.Appointment", b =>
                 {
                     b.HasOne("MedicalTriageSystem.Models.Doctor", "Doctor")
-                        .WithMany()
+                        .WithMany("Appointments")
                         .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("MedicalTriageSystem.Models.Patient", "Patient")
                         .WithMany("Appointments")
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Doctor");
@@ -403,18 +428,44 @@ namespace MedicalTriageSystem.Data.Migrations
             modelBuilder.Entity("MedicalTriageSystem.Models.Doctor", b =>
                 {
                     b.HasOne("MedicalTriageSystem.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
+                        .WithOne("Doctor")
+                        .HasForeignKey("MedicalTriageSystem.Models.Doctor", "UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MedicalTriageSystem.Models.MedicalRecord", b =>
+                {
+                    b.HasOne("MedicalTriageSystem.Models.Patient", "Patient")
+                        .WithMany("MedicalRecords")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
             modelBuilder.Entity("MedicalTriageSystem.Models.Notification", b =>
                 {
+                    b.HasOne("MedicalTriageSystem.Models.Doctor", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MedicalTriageSystem.Models.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("MedicalTriageSystem.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Doctor");
+
+                    b.Navigation("Patient");
 
                     b.Navigation("User");
                 });
@@ -422,8 +473,8 @@ namespace MedicalTriageSystem.Data.Migrations
             modelBuilder.Entity("MedicalTriageSystem.Models.Patient", b =>
                 {
                     b.HasOne("MedicalTriageSystem.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne("Patient")
+                        .HasForeignKey("MedicalTriageSystem.Models.Patient", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -444,7 +495,7 @@ namespace MedicalTriageSystem.Data.Migrations
             modelBuilder.Entity("MedicalTriageSystem.Models.TriageResult", b =>
                 {
                     b.HasOne("MedicalTriageSystem.Models.Doctor", "Doctor")
-                        .WithMany()
+                        .WithMany("TriageResults")
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.SetNull);
 
@@ -459,13 +510,29 @@ namespace MedicalTriageSystem.Data.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("MedicalTriageSystem.Models.Doctor", b =>
+                {
+                    b.Navigation("Appointments");
+
+                    b.Navigation("TriageResults");
+                });
+
             modelBuilder.Entity("MedicalTriageSystem.Models.Patient", b =>
                 {
                     b.Navigation("Appointments");
 
+                    b.Navigation("MedicalRecords");
+
                     b.Navigation("Symptoms");
 
                     b.Navigation("TriageResults");
+                });
+
+            modelBuilder.Entity("MedicalTriageSystem.Models.User", b =>
+                {
+                    b.Navigation("Doctor");
+
+                    b.Navigation("Patient");
                 });
 #pragma warning restore 612, 618
         }

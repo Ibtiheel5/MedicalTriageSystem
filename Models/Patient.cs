@@ -11,42 +11,32 @@ namespace MedicalTriageSystem.Models
         public int Id { get; set; }
 
         [Required]
-        [ForeignKey("User")]
         public int UserId { get; set; }
 
         [Required]
         [StringLength(100)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         public int Age { get; set; }
 
         [Required]
         [EmailAddress]
         [StringLength(100)]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [StringLength(20)]
-        public string Phone { get; set; }
+        public string Phone { get; set; } = string.Empty;
 
         [StringLength(20)]
         public string Gender { get; set; } = "Non spécifié";
 
-        [StringLength(10)]
-        public string BloodType { get; set; } = "Non spécifié";
-
-        public string Address { get; set; }
-
-        public string EmergencyContact { get; set; }
-
-        public string EmergencyPhone { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
-        public virtual User User { get; set; }
+        public virtual User User { get; set; } = null!;
 
-        // Collections (initialisez-les comme des listes vides)
+        // Collections
         public virtual ICollection<TriageResult> TriageResults { get; set; } = new List<TriageResult>();
         public virtual ICollection<Symptom> Symptoms { get; set; } = new List<Symptom>();
         public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();

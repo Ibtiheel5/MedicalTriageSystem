@@ -1,0 +1,176 @@
+﻿@model MedicalTriageSystem.Models.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Tableau de Bord Médecin";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-stethoscope text-primary me-2"></i>
+                        Tableau de Bord Médecin
+                    </h1>
+                    <p class="mb-0 text-muted">Bienvenue, Dr. @ViewBag.DoctorName</p>
+                </div>
+                <div>
+                    <a asp-action="Index" asp-controller="Appointments" class="btn btn-primary">
+                        <i class="fas fa-calendar me-1"></i> Mes RDV
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-3">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Patients totaux
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.TotalPatients</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-3">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Triage urgents
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.UrgentCases</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-3">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                RDV aujourd'hui
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.UpcomingAppointments.Count(a => a.Date.Date == DateTime.Today)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-3">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Triage semaine
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.WeekTriages</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RDV Prochains -->
+    <div class="row mb-4">
+        <div class="col-xl-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Prochains Rendez-vous</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.UpcomingAppointments.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Date</th>
+                                        <th>Heure</th>
+                                        <th>Raison</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var appt in Model.UpcomingAppointments.Take(10))
+                                    {
+                                        <tr>
+                                            <td>@appt.Patient.Name</td>
+                                            <td>@appt.Date.ToString("dd/MM/yyyy")</td>
+                                            <td>@appt.StartTime?.ToString(@"hh\:mm")</td>
+                                            <td>@appt.Reason</td>
+                                            <td>
+                                                <a asp-controller="Appointments" asp-action="Details" asp-route-id="@appt.Id"
+                                                   class="btn btn-sm btn-info">Détails</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucun rendez-vous prévu</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Cas urgents -->
+        <div class="col-xl-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">Cas urgents</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.UrgentCases.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var urgent in Model.UrgentCases.Take(5))
+                            {
+                                <li class="list-group-item px-0">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <small>@urgent.Patient.Name</small>
+                                        <span class="badge bg-danger">Urgent</span>
+                                    </div>
+                                    <div class="my-1 text-xs text-muted">@urgent.CreatedAt.ToString("dd/MM HH:mm")</div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <p class="text-success">Aucun cas urgent</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

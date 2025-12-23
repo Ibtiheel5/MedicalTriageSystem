@@ -17,6 +17,9 @@ namespace MedicalTriageSystem.Controllers
         public async Task<IActionResult> Index()
         {
             var notifications = await _context.Notifications
+                .Include(n => n.User)
+                .Include(n => n.Patient)
+                .Include(n => n.Doctor)
                 .OrderByDescending(n => n.CreatedAt)
                 .ToListAsync();
             return View(notifications);
@@ -35,7 +38,7 @@ namespace MedicalTriageSystem.Controllers
                     n.Message,
                     n.Type,
                     n.IsRead,
-                    n.CreatedAt
+                    CreatedAt = n.CreatedAt.ToString("dd/MM/yyyy HH:mm") // Formatage
                 })
                 .ToListAsync();
             return Json(notifications);
@@ -48,7 +51,7 @@ namespace MedicalTriageSystem.Controllers
             if (notification != null)
             {
                 notification.IsRead = true;
-                notification.ReadAt = DateTime.Now;
+                notification.ReadAt = DateTime.UtcNow; // ✅ CORRECTION: Utilisez UtcNow
                 await _context.SaveChangesAsync();
             }
             return Ok();
@@ -63,7 +66,7 @@ namespace MedicalTriageSystem.Controllers
             foreach (var notification in notifications)
             {
                 notification.IsRead = true;
-                notification.ReadAt = DateTime.Now;
+                notification.ReadAt = DateTime.UtcNow; // ✅ CORRECTION: Utilisez UtcNow
             }
             await _context.SaveChangesAsync();
             return Ok();
@@ -76,6 +79,22 @@ namespace MedicalTriageSystem.Controllers
             _context.Notifications.RemoveRange(notifications);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
+        }
+
+        // Méthode pour créer une notification
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] Notification notification)
+        {
+            if (notification == null)
+                return BadRequest("Notification invalide");
+
+            notification.CreatedAt = DateTime.UtcNow; // ✅ CORRECTION: Utilisez UtcNow
+            notification.IsRead = false;
+
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, id = notification.Id });
         }
     }
 }

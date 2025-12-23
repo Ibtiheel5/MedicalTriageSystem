@@ -20,42 +20,51 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var patient in Model)
+        @if (Model != null && Model.Any())
         {
-            // ✅ CORRECTION : Utiliser TriageResults au lieu de TriageResult
-            var lastTriage = patient.TriageResults?.OrderByDescending(t => t.Date).FirstOrDefault();
-            var triageLevel = lastTriage?.Level ?? "Non évalué";
-            var triageScore = lastTriage?.Score ?? 0;
+            @foreach (var patient in Model)
+            {
+                // ✅ CORRECTION : Utiliser CreatedAt au lieu de Date
+                var lastTriage = patient.TriageResults?.OrderByDescending(t => t.CreatedAt).FirstOrDefault();
+                var triageLevel = lastTriage?.Level ?? "Non évalué";
+                var triageScore = lastTriage?.Score ?? 0;
 
-            <tr>
-                <td>@patient.Name</td>
-                <td>@patient.Age</td>
-                <td>@patient.Email</td>
-                <td>@patient.Phone</td>
-                <td>
-                    <span class="badge @(triageLevel == "Urgent" ? "bg-danger" :
-                                                                      triageLevel == "High" ? "bg-warning" :
-                                                                      triageLevel == "Normal" ? "bg-info" :
-                                                                      triageLevel == "Low" ? "bg-success" : "bg-secondary")">
+                <tr>
+                    <td>@patient.Name</td>
+                    <td>@patient.Age</td>
+                    <td>@patient.Email</td>
+                    <td>@patient.Phone</td>
+                    <td>
+                        <span class="badge @(triageLevel == "Urgent" ? "bg-danger" :
+                                                                                                        triageLevel == "High" ? "bg-warning" :
+                                                                                                        triageLevel == "Normal" ? "bg-info" :
+                                                                                                        triageLevel == "Low" ? "bg-success" : "bg-secondary")">
                     @triageLevel
                 </span>
             </td>
             <td>
                 @if (triageScore > 0)
-                    {
-                        <span class="fw-bold">@triageScore</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </td>
-                <td>@patient.CreatedAt.ToString("dd/MM/yyyy")</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@patient.Id" class="btn btn-sm btn-info">
-                        <i class="fas fa-eye"></i> Détails
-                    </a>
-                </td>
+                        {
+                            <span class="fw-bold">@triageScore</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">-</span>
+                        }
+                    </td>
+                    <td>@patient.CreatedAt.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@patient.Id" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i> Détails
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" class="text-center">Aucun patient trouvé</td>
             </tr>
         }
     </tbody>

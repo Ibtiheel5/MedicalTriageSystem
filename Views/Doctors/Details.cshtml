@@ -43,24 +43,26 @@
         </dt>
         <dd class="col-sm-10">
             @{
-                // ✅ CORRECTION : Utiliser TriageResults.LastOrDefault() au lieu de TriageResult
-                var lastTriage = Model.TriageResults?.OrderByDescending(t => t.Date).FirstOrDefault();
+                // ✅ CORRECTION : Utiliser CreatedAt au lieu de Date
+                var lastTriage = Model.TriageResults?.OrderByDescending(t => t.CreatedAt).FirstOrDefault();
                 var triageLevel = lastTriage?.Level ?? "Non évalué";
                 var triageScore = lastTriage?.Score ?? 0;
             }
 
-            <div class="card mb-3">
-                <div class="card-header bg-info text-white">
-                    Résultat du Triage
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <strong>Niveau:</strong>
-                            <span class="badge @(triageLevel == "Urgent" ? "bg-danger" :
-                                                                                      triageLevel == "High" ? "bg-warning" :
-                                                                                      triageLevel == "Normal" ? "bg-info" :
-                                                                                      triageLevel == "Low" ? "bg-success" : "bg-secondary")">
+            @if (lastTriage != null)
+            {
+                <div class="card mb-3">
+                    <div class="card-header bg-info text-white">
+                        Résultat du Triage
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>Niveau:</strong>
+                                <span class="badge @(triageLevel == "Urgent" ? "bg-danger" :
+                                                                                                                      triageLevel == "High" ? "bg-warning" :
+                                                                                                                      triageLevel == "Normal" ? "bg-info" :
+                                                                                                                      triageLevel == "Low" ? "bg-success" : "bg-secondary")">
                                 @triageLevel
                             </span>
                         </div>
@@ -68,18 +70,23 @@
                             <strong>Score:</strong> @triageScore
                         </div>
                         <div class="col-md-4">
-                            <strong>Date:</strong> @(lastTriage?.Date.ToString("dd/MM/yyyy HH:mm") ?? "-")
+                            <strong>Date:</strong> @lastTriage.CreatedAt.ToString("dd/MM/yyyy HH:mm")
                         </div>
                     </div>
-                    @if (!string.IsNullOrEmpty(lastTriage?.Recommendation))
-                    {
-                        <div class="mt-3">
-                            <strong>Recommandation:</strong>
-                            <p class="mt-1">@lastTriage.Recommendation</p>
-                        </div>
-                    }
+                    @if (!string.IsNullOrEmpty(lastTriage.Recommendation))
+                        {
+                            <div class="mt-3">
+                                <strong>Recommandation:</strong>
+                                <p class="mt-1">@lastTriage.Recommendation</p>
+                            </div>
+                        }
+                    </div>
                 </div>
-            </div>
+            }
+            else
+            {
+                <span class="text-muted">Aucun triage effectué</span>
+            }
         </dd>
 
         <!-- Symptômes -->
@@ -93,7 +100,7 @@
                     @foreach (var symptom in Model.Symptoms)
                     {
                         <li class="list-group-item">
-                            <strong>@symptom.Name</strong> -
+                            <strong>@symptom.Description</strong> -
                             Sévérité: @symptom.Severity -
                             <small class="text-muted">@symptom.Date.ToString("dd/MM/yyyy")</small>
                         </li>
