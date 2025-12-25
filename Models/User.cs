@@ -1,37 +1,33 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace MedicalTriageSystem.Models
 {
-    [Table("Users")]
-    public class User
+    // Ajout de l'héritage : BaseEntity pour récupérer CreatedAt et UpdatedAt
+    public class User : BaseEntity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string Username { get; set; } = string.Empty;
+        public required string Username { get; set; }
 
         [Required]
         [EmailAddress]
-        [StringLength(100)]
-        public string Email { get; set; } = string.Empty;
+        public required string Email { get; set; }
 
         [Required]
-        public string PasswordHash { get; set; } = string.Empty;
+        public required string PasswordHash { get; set; }
 
         [Required]
-        [StringLength(20)]
-        public string Role { get; set; } = "Patient";
+        public required string Role { get; set; } = "Patient";
 
         public bool IsActive { get; set; } = true;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        // Note: CreatedAt et UpdatedAt sont maintenant hérités de BaseEntity
 
         // Navigation properties
-        public virtual Patient? Patient { get; set; }
-        public virtual Doctor? Doctor { get; set; }
+        public Patient? Patient { get; set; }
+        public Doctor? Doctor { get; set; }
     }
 }

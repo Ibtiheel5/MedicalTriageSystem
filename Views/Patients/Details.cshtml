@@ -1,116 +1,109 @@
 ﻿@model MedicalTriageSystem.Models.Patient
 
 @{
-    ViewData["Title"] = "Détails du Patient";
+    ViewData["Title"] = "Dossier Patient - " + Model.Name;
 }
 
-<h1>Détails du Patient</h1>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Patients</a></li>
+                <li class="breadcrumb-item active">Dossier Médical</li>
+            </ol>
+        </nav>
+        <div class="btn-group">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm rounded-start-pill px-3">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-end-pill px-3">
+                Retour
+            </a>
+        </div>
+    </div>
 
-<div>
-    <h4>Patient</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="medical-card p-4 text-center shadow-sm">
+                <div class="patient-avatar mx-auto mb-3" style="width: 110px; height: 110px; font-size: 3rem; border: 4px solid #f0f7ff;">
+                    @Model.Name?.Substring(0, 1).ToUpper()
+                </div>
+                <h3 class="fw-bold">@Model.Name</h3>
+                <span class="badge bg-light text-primary border px-3 mb-3">ID: #PAT-@Model.Id.ToString("D4")</span>
 
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Age)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Age)
-        </dd>
-
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Phone)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Phone)
-        </dd>
-
-        <dt class="col-sm-2">
-            Dernier Triage
-        </dt>
-        <dd class="col-sm-10">
-            @{
-                // ✅ CORRECTION : Utiliser CreatedAt au lieu de Date
-                var lastTriage = Model.TriageResults?.OrderByDescending(t => t.CreatedAt).FirstOrDefault();
-                var triageLevel = lastTriage?.Level ?? "Non évalué";
-                var triageScore = lastTriage?.Score ?? 0;
-            }
-
-            @if (lastTriage != null)
-            {
-                <div class="card mb-3">
-                    <div class="card-header bg-info text-white">
-                        Résultat du Triage
+                <div class="text-start mt-3">
+                    <div class="mb-3">
+                        <label class="small text-muted d-block text-uppercase fw-bold">Contact</label>
+                        <p class="mb-1"><i class="fas fa-envelope me-2 text-primary"></i>@Model.Email</p>
+                        <p class="mb-0"><i class="fas fa-phone me-2 text-primary"></i>@(Model.Phone ?? "Non renseigné")</p>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <strong>Niveau:</strong>
-                                <span class="badge @(triageLevel == "Urgent" ? "bg-danger" :
-                                                                                                                    triageLevel == "High" ? "bg-warning" :
-                                                                                                                    triageLevel == "Normal" ? "bg-info" :
-                                                                                                                    triageLevel == "Low" ? "bg-success" : "bg-secondary")">
-                                @triageLevel
-                            </span>
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Score:</strong> @triageScore
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Date:</strong> @lastTriage.CreatedAt.ToString("dd/MM/yyyy HH:mm")
-                        </div>
+                    <div class="mb-3">
+                        <label class="small text-muted d-block text-uppercase fw-bold">Données Bio</label>
+                        <p class="mb-1"><i class="fas fa-user me-2 text-primary"></i>@Model.Age ans</p>
+                        <p class="mb-0"><i class="fas fa-venus-mars me-2 text-primary"></i>@(Model.Gender ?? "Non spécifié")</p>
                     </div>
-                    @if (!string.IsNullOrEmpty(lastTriage.Recommendation))
-                        {
-                            <div class="mt-3">
-                                <strong>Recommandation:</strong>
-                                <p class="mt-1">@lastTriage.Recommendation</p>
-                            </div>
-                        }
+                    <div>
+                        <label class="small text-muted d-block text-uppercase fw-bold">Adresse</label>
+                        <p class="mb-0"><i class="fas fa-map-marker-alt me-2 text-primary"></i>@(Model.Address ?? "Aucune adresse")</p>
                     </div>
                 </div>
-            }
-            else
-            {
-                <span class="text-muted">Aucun triage effectué</span>
-            }
-        </dd>
+            </div>
+        </div>
 
-        <!-- Symptômes -->
-        @if (Model.Symptoms?.Any() == true)
-        {
-            <dt class="col-sm-2">
-                Symptômes
-            </dt>
-            <dd class="col-sm-10">
-                <ul class="list-group">
-                    @foreach (var symptom in Model.Symptoms)
+        <div class="col-lg-8">
+            <div class="medical-card p-0 shadow-sm overflow-hidden mb-4">
+                <div class="medical-gradient p-3 text-white">
+                    <h5 class="mb-0"><i class="fas fa-notes-medical me-2"></i>Historique des Triages</h5>
+                </div>
+                <div class="p-4">
+                    @if (Model.TriageResults != null && Model.TriageResults.Any())
                     {
-                        <li class="list-group-item">
-                            <strong>@symptom.Description</strong> - <!-- CHANGÉ: Description au lieu de Name -->
-                            Sévérité: @symptom.Severity -
-                            <small class="text-muted">@symptom.Date.ToString("dd/MM/yyyy")</small> <!-- CHANGÉ: StartDate au lieu de Date -->
-                        </li>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle datatable">
+                                <thead>
+                                    <tr class="text-muted small text-uppercase">
+                                        <th>Date</th>
+                                        <th>Niveau</th>
+                                        <th>Score</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var triage in Model.TriageResults.OrderByDescending(t => t.CreatedAt))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="fw-bold">@triage.CreatedAt.ToString("dd/MM/yyyy")</div>
+                                                <small class="text-muted">@triage.CreatedAt.ToString("HH:mm")</small>
+                                            </td>
+                                            <td>
+                                                <span class="status-indicator @(triage.Level == "Urgent" ? "status-urgent" : "status-low")"></span>
+                                                <span class="fw-medium">@triage.Level</span>
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold @(triage.Score >= 75 ? "text-danger" : "text-dark")">@triage.Score%</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <a asp-controller="Triage" asp-action="Result" asp-route-id="@triage.Id" class="btn btn-sm btn-light">
+                                                    <i class="fas fa-external-link-alt"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     }
-                </ul>
-            </dd>
-        }
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Modifier</a>
-    <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-folder-open fa-3x text-light mb-3"></i>
+                            <p class="text-muted">Aucune évaluation enregistrée pour ce patient.</p>
+                            <a asp-controller="Triage" asp-action="Create" class="btn btn-sm btn-outline-primary">Lancer un test</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

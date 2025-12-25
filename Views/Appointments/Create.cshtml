@@ -1,0 +1,77 @@
+﻿@model MedicalTriageSystem.Models.Appointment
+
+@{
+    ViewData["Title"] = "Nouveau Rendez-vous";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid fw-normal">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold"><i class="fas fa-calendar-plus me-2"></i>Planifier une consultation</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PatientId" class="form-label font-weight-bold">Patient</label>
+                                <select asp-for="PatientId" class="form-select border-left-primary"
+                                        asp-items="@(new SelectList(ViewBag.Patients, "Id", "Name"))">
+                                    <option value="">-- Sélectionner le patient --</option>
+                                </select>
+                                <span asp-validation-for="PatientId" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DoctorId" class="form-label font-weight-bold">Médecin Responsable</label>
+                                <select asp-for="DoctorId" class="form-select"
+                                        asp-items="@(new SelectList(ViewBag.Doctors, "Id", "Name"))">
+                                </select>
+                                <span asp-validation-for="DoctorId" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Date" class="form-label font-weight-bold">Date</label>
+                                <input asp-for="Date" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="Date" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="StartTime" class="form-label font-weight-bold">Heure de début</label>
+                                <input asp-for="StartTime" type="time" class="form-control" />
+                                <span asp-validation-for="StartTime" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Reason" class="form-label font-weight-bold">Motif de la visite</label>
+                            <textarea asp-for="Reason" class="form-control" rows="3" placeholder="Ex: Suivi post-opératoire, renouvellement ordonnance..."></textarea>
+                            <span asp-validation-for="Reason" class="text-danger small"></span>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-1"></i> Enregistrer le rendez-vous
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

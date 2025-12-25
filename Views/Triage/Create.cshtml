@@ -1,0 +1,95 @@
+﻿@model MedicalTriageSystem.Models.ViewModels.QuickTriageRequestViewModel
+
+@{
+    ViewData["Title"] = "Auto-Triage Médical";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <div class="display-4 text-primary mb-2">
+                    <i class="bi bi-heart-pulse-fill"></i> 🩺
+                </div>
+                <h1 class="fw-bold">Système d'Auto-Triage</h1>
+                <p class="text-muted">Répondez avec précision pour une orientation médicale rapide.</p>
+            </div>
+
+            <div class="progress mb-4" style="height: 10px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 50%"></div>
+            </div>
+
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Create" method="post" id="triageForm">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <h5 class="mb-4 text-secondary"><i class="bi bi-check2-circle"></i> 1. Sélectionnez vos symptômes actuels :</h5>
+
+                        <div class="row g-3 mb-4">
+                            @{
+                                var listSymptoms = new[] {
+                                                        "Douleur thoracique", "Difficulté respiratoire",
+                                                        "Perte de conscience", "Saignement abondant",
+                                                        "Fièvre élevée", "Vomissements",
+                                                        "Maux de tête sévères", "Confusion"
+                                                        };
+                            }
+
+                            @foreach (var symptom in listSymptoms)
+                            {
+                                <div class="col-md-6">
+                                    <input type="checkbox" class="btn-check" name="Symptoms" value="@symptom" id="@symptom.Replace(" ", "")" autocomplete="off">
+                                    <label class="btn btn-outline-primary w-100 py-3 text-start shadow-sm" for="@symptom.Replace(" ", "")">
+                                        <i class="bi bi-plus-lg me-2"></i> @symptom
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                        <span asp-validation-for="Symptoms" class="text-danger d-block mb-4"></span>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-3 text-secondary"><i class="bi bi-pencil-square"></i> 2. Informations complémentaires :</h5>
+                        <div class="form-floating mb-4">
+                            <textarea asp-for="Notes" class="form-control" placeholder="Décrivez votre état ici" id="floatingTextarea" style="height: 120px"></textarea>
+                            <label for="floatingTextarea">Détaillez vos symptômes ou antécédents...</label>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="History" class="btn btn-light btn-lg px-4 me-md-2">Annuler</a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5 shadow">
+                                Lancer l'analyse <i class="bi bi-arrow-right-short"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="alert alert-warning mt-4 d-flex align-items-center rounded-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
+                <div>
+                    <strong>Attention :</strong> Ce triage est indicatif. En cas d'urgence vitale, contactez immédiatement les services de secours (15 ou 112).
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Animation simple au clic sur les symptômes
+        document.querySelectorAll('.btn-check').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const label = document.querySelector(`label[for="${this.id}"]`);
+                if(this.checked) {
+                    label.classList.add('bg-primary', 'text-white');
+                } else {
+                    label.classList.remove('bg-primary', 'text-white');
+                }
+            });
+        });
+    </script>
+}

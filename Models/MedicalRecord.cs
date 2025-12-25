@@ -11,26 +11,43 @@ namespace MedicalTriageSystem.Models
         public int Id { get; set; }
 
         [Required]
-        [ForeignKey("Patient")]
         public int PatientId { get; set; }
 
+        [StringLength(100)]
+        public string RecordType { get; set; } = string.Empty; // Consultation, Test, Hospitalisation
+
         [Required]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
-        public string FilePath { get; set; }
+        public string FilePath { get; set; } = string.Empty; // Pour stocker des fichiers PDF/images
 
-        public string FileType { get; set; }
+        public string FileType { get; set; } = string.Empty;
 
         public long FileSize { get; set; }
 
-        [Required]
-        public DateTime RecordDate { get; set; }
+        public DateTime RecordDate { get; set; } = DateTime.UtcNow;
 
-        public DateTime CreatedAt { get; set; }
+        public string DoctorName { get; set; } = string.Empty;
 
-        // Navigation property
-        public virtual Patient Patient { get; set; }
+        public string HospitalClinic { get; set; } = string.Empty;
+
+        public string TestResults { get; set; } = string.Empty;
+
+        public string Medications { get; set; } = string.Empty;
+
+        public string Procedures { get; set; } = string.Empty;
+
+        public string Notes { get; set; } = string.Empty;
+
+        public bool IsConfidential { get; set; } = false;
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        // Navigation properties
+        public virtual Patient Patient { get; set; } = null!;
     }
 }

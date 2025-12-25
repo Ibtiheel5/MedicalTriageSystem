@@ -1,10 +1,13 @@
 ﻿using MedicalTriageSystem.Data;
 using MedicalTriageSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace MedicalTriageSystem.Controllers
 {
+    [Authorize]
     public class NotificationsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -16,85 +19,63 @@ namespace MedicalTriageSystem.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var notifications = await _context.Notifications
-                .Include(n => n.User)
-                .Include(n => n.Patient)
-                .Include(n => n.Doctor)
-                .OrderByDescending(n => n.CreatedAt)
-                .ToListAsync();
-            return View(notifications);
-        }
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 
-        [HttpGet]
-        public async Task<IActionResult> GetNotifications()
-        {
             var notifications = await _context.Notifications
+                .Where(n => n.UserId == userId)
                 .OrderByDescending(n => n.CreatedAt)
-                .Take(10)
-                .Select(n => new
-                {
-                    n.Id,
-                    n.Title,
-                    n.Message,
-                    n.Type,
-                    n.IsRead,
-                    CreatedAt = n.CreatedAt.ToString("dd/MM/yyyy HH:mm") // Formatage
-                })
+                .Take(50)
                 .ToListAsync();
-            return Json(notifications);
+
+            return View(notifications);
         }
 
         [HttpPost]
         public async Task<IActionResult> MarkAsRead(int id)
         {
-            var notification = await _context.Notifications.FindAsync(id);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var notification = await _context.Notifications
+                .FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId);
+
             if (notification != null)
             {
                 notification.IsRead = true;
-                notification.ReadAt = DateTime.UtcNow; // ✅ CORRECTION: Utilisez UtcNow
+                notification.ReadAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
-            return Ok();
+
+            return Json(new { success = true });
         }
 
         [HttpPost]
         public async Task<IActionResult> MarkAllAsRead()
         {
-            var notifications = await _context.Notifications
-                .Where(n => !n.IsRead)
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+
+            var unreadNotifications = await _context.Notifications
+                .Where(n => n.UserId == userId && !n.IsRead)
                 .ToListAsync();
-            foreach (var notification in notifications)
+
+            foreach (var notification in unreadNotifications)
             {
                 notification.IsRead = true;
-                notification.ReadAt = DateTime.UtcNow; // ✅ CORRECTION: Utilisez UtcNow
+                notification.ReadAt = DateTime.UtcNow;
             }
+
             await _context.SaveChangesAsync();
-            return Ok();
+
+            return Json(new { success = true, count = unreadNotifications.Count });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ClearAll()
+        [HttpGet]
+        public async Task<IActionResult> GetUnreadCount()
         {
-            var notifications = await _context.Notifications.ToListAsync();
-            _context.Notifications.RemoveRange(notifications);
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
-        }
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 
-        // Méthode pour créer une notification
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Notification notification)
-        {
-            if (notification == null)
-                return BadRequest("Notification invalide");
+            var count = await _context.Notifications
+                .CountAsync(n => n.UserId == userId && !n.IsRead);
 
-            notification.CreatedAt = DateTime.UtcNow; // ✅ CORRECTION: Utilisez UtcNow
-            notification.IsRead = false;
-
-            _context.Notifications.Add(notification);
-            await _context.SaveChangesAsync();
-
-            return Json(new { success = true, id = notification.Id });
+            return Json(new { count });
         }
     }
 }

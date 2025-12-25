@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MedicalTriageSystem.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MedicalTriageSystem.Controllers
 {
-    [AllowAnonymous]
     public class HomeController : Controller
     {
         public IActionResult Index()
@@ -11,14 +11,18 @@ namespace MedicalTriageSystem.Controllers
             return View();
         }
 
-        public IActionResult About()
+        [Authorize]
+        public IActionResult Dashboard()
         {
-            return View();
-        }
+            var userRole = User?.Claims?.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
 
-        public IActionResult Contact()
-        {
-            return View();
+            return userRole switch
+            {
+                "Admin" => RedirectToAction("Index", "Dashboard"),
+                "Doctor" => RedirectToAction("Index", "DoctorDashboard"),
+                "Patient" => RedirectToAction("Dashboard", "PatientDashboard"),
+                _ => RedirectToAction("Index", "Home")
+            };
         }
 
         public IActionResult Privacy()
@@ -26,28 +30,10 @@ namespace MedicalTriageSystem.Controllers
             return View();
         }
 
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View();
-        }
-
-        [Authorize]
-        public IActionResult Dashboard()
-        {
-            if (User.IsInRole("Admin"))
-            {
-                return RedirectToAction("Index", "Dashboard"); // Dashboard Admin
-            }
-            else if (User.IsInRole("Doctor"))
-            {
-                return RedirectToAction("Index", "DoctorDashboard"); // Dashboard Médecin
-            }
-            else if (User.IsInRole("Patient"))
-            {
-                return RedirectToAction("Index", "PatientDashboard"); // Dashboard Patient
-            }
-
-            return RedirectToAction("Index", "Home");
         }
     }
 }

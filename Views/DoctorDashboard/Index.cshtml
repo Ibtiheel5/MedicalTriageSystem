@@ -1,176 +1,480 @@
-﻿@model MedicalTriageSystem.Models.ViewModels.DashboardViewModel
+﻿@model MedicalTriageSystem.Models.ViewModels.DoctorDashboardViewModel
 @{
     ViewData["Title"] = "Tableau de Bord Médecin";
     Layout = "_Layout";
 }
 
-<div class="container-fluid">
+<style>
+    .dashboard-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px;
+    }
+
+    /* Cards améliorées */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+        transition: all 0.3s ease;
+    }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.15);
+        }
+
+    /* Stats Cards */
+    .stats-card {
+        border-radius: 16px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        cursor: pointer;
+    }
+
+        .stats-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+        }
+
+    .stats-card-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .stats-card-warning {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+
+    .stats-card-success {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+
+    .stats-card-danger {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+    }
+
+    .icon-wrapper {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    
+
+    /* Boutons améliorés */
+    .btn-medical {
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-medical::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-medical:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+    .btn-medical-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-medical-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+    }
+
+    .btn-medical-secondary {
+        background: linear-gradient(135deg, #868f96 0%, #596164 100%);
+        color: white;
+    }
+
+    /* Header amélioré */
+    .doctor-header {
+        position: relative;
+        overflow: hidden;
+    }
+
+        .doctor-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+    /* Quick stats */
+    .quick-stat {
+        position: relative;
+        padding: 20px;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.7);
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+
+        .quick-stat:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: scale(1.02);
+        }
+
+        .quick-stat::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            border-radius: 5px 0 0 5px;
+        }
+
+        .quick-stat:nth-child(1)::before {
+            background: #667eea;
+        }
+
+        .quick-stat:nth-child(2)::before {
+            background: #f5576c;
+        }
+
+        .quick-stat:nth-child(3)::before {
+            background: #4facfe;
+        }
+
+        .quick-stat:nth-child(4)::before {
+            background: #fa709a;
+        }
+
+    /* Animations */
+    
+
+    .animate-card {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+        .animate-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .animate-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .animate-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .animate-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+    /* Responsive */
+    
+    .glass-card {
+        padding: 20px !important;
+    }
+
+    .btn-medical {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    }
+</style>
+
+<div class="dashboard-container">
     <!-- Header -->
-    <div class="row mb-4">
+    <div class="row mb-5">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-1">
-                        <i class="fas fa-stethoscope text-primary me-2"></i>
-                        Tableau de Bord Médecin
-                    </h1>
-                    <p class="mb-0 text-muted">Bienvenue, Dr. @ViewBag.DoctorName</p>
-                </div>
-                <div>
-                    <a asp-action="Index" asp-controller="Appointments" class="btn btn-primary">
-                        <i class="fas fa-calendar me-1"></i> Mes RDV
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Statistiques -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-3">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Patients totaux
+            <div class="glass-card p-4 doctor-header">
+                <div class="d-flex justify-content-between align-items-center position-relative" style="z-index: 1">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary bg-gradient rounded-circle p-3 me-3 shadow">
+                                <i class="fas fa-user-md fa-2x text-white"></i>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.TotalPatients</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-3">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Triage urgents
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.UrgentCases</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-3">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                RDV aujourd'hui
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                @Model.UpcomingAppointments.Count(a => a.Date.Date == DateTime.Today)
+                            <div>
+                                <h1 class="h2 mb-1 fw-bold text-dark">
+                                    Bonjour, Dr. <span class="text-primary">@Model.DoctorInfo.Name</span>
+                                </h1>
+                                <div class="d-flex align-items-center flex-wrap gap-3">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+                                        <i class="fas fa-stethoscope me-2"></i>@Model.DoctorInfo.Specialty
+                                    </span>
+                                    <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill">
+                                        <i class="fas fa-star me-2"></i>Note: @Model.DoctorStatisticsInfo.PatientRating/5
+                                    </span>
+                                    <span class="badge @(Model.DoctorInfo.IsAvailable ? "bg-success" : "bg-secondary") bg-opacity-10 @(Model.DoctorInfo.IsAvailable ? "text-success" : "text-secondary") px-3 py-2 rounded-pill">
+                                        <i class="fas fa-circle me-2" style="font-size: 8px"></i>
+                                        @(Model.DoctorInfo.IsAvailable ? "Disponible" : "Indisponible")
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-3">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Triage semaine
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.WeekTriages</div>
-                        </div>
+                    <div class="d-flex gap-3 flex-shrink-0">
+                        <button id="availabilityToggle"
+                                class="btn-medical @(Model.DoctorInfo.IsAvailable ? "btn-medical-success" : "btn-medical-secondary") shadow"
+                                data-available="@Model.DoctorInfo.IsAvailable.ToString().ToLower()">
+                            <i class="fas fa-user-clock me-2"></i>
+                            @(Model.DoctorInfo.IsAvailable ? "Rendre Indisponible" : "Rendre Disponible")
+                        </button>
+                        <button class="btn-medical btn-medical-primary shadow" data-bs-toggle="modal" data-bs-target="#quickActionsModal">
+                            <i class="fas fa-bolt me-2"></i> Actions Rapides
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- RDV Prochains -->
-    <div class="row mb-4">
-        <div class="col-xl-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Prochains Rendez-vous</h6>
-                </div>
-                <div class="card-body">
-                    @if (Model.UpcomingAppointments.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Patient</th>
-                                        <th>Date</th>
-                                        <th>Heure</th>
-                                        <th>Raison</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var appt in Model.UpcomingAppointments.Take(10))
-                                    {
-                                        <tr>
-                                            <td>@appt.Patient.Name</td>
-                                            <td>@appt.Date.ToString("dd/MM/yyyy")</td>
-                                            <td>@appt.StartTime?.ToString(@"hh\:mm")</td>
-                                            <td>@appt.Reason</td>
-                                            <td>
-                                                <a asp-controller="Appointments" asp-action="Details" asp-route-id="@appt.Id"
-                                                   class="btn btn-sm btn-info">Détails</a>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+    <!-- Statistics -->
+    <div class="row mb-5 g-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card stats-card-primary p-4 animate-card shadow">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase opacity-75 mb-3">Mes Patients</h6>
+                        <h2 class="display-4 fw-bold mb-2">@Model.DoctorStatisticsInfo.MyPatientsCount</h2>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-plus me-2 opacity-75"></i>
+                            <small class="opacity-75">
+                                @Model.GlobalStatistics.TotalPatients patients au total
+                            </small>
                         </div>
-                    }
-                    else
-                    {
-                        <div class="text-center py-4">
-                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">Aucun rendez-vous prévu</p>
-                        </div>
-                    }
+                    </div>
+                    <div class="icon-wrapper">
+                        <i class="fas fa-users fa-3x opacity-50"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Cas urgents -->
-        <div class="col-xl-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-danger">Cas urgents</h6>
-                </div>
-                <div class="card-body">
-                    @if (Model.UrgentCases.Any())
-                    {
-                        <ul class="list-group list-group-flush">
-                            @foreach (var urgent in Model.UrgentCases.Take(5))
-                            {
-                                <li class="list-group-item px-0">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <small>@urgent.Patient.Name</small>
-                                        <span class="badge bg-danger">Urgent</span>
-                                    </div>
-                                    <div class="my-1 text-xs text-muted">@urgent.CreatedAt.ToString("dd/MM HH:mm")</div>
-                                </li>
-                            }
-                        </ul>
-                    }
-                    else
-                    {
-                        <div class="text-center py-4">
-                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                            <p class="text-success">Aucun cas urgent</p>
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card stats-card-warning p-4 animate-card shadow">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase opacity-75 mb-3">RDV Aujourd'hui</h6>
+                        <h2 class="display-4 fw-bold mb-2">@Model.DoctorStatisticsInfo.MyAppointmentsToday</h2>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle me-2 opacity-75"></i>
+                            <small class="opacity-75">
+                                @Model.DoctorStatisticsInfo.PatientsSeenToday patients vus
+                            </small>
                         </div>
-                    }
+                    </div>
+                    <div class="icon-wrapper">
+                        <i class="fas fa-calendar-day fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card stats-card-success p-4 animate-card shadow">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase opacity-75 mb-3">Cas Urgents</h6>
+                        <h2 class="display-4 fw-bold mb-2">@Model.DoctorStatisticsInfo.MyUrgentCasesCount</h2>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle me-2 opacity-75"></i>
+                            <small class="opacity-75">
+                                @Model.GlobalStatistics.UrgentCasesCount urgences totales
+                            </small>
+                        </div>
+                    </div>
+                    <div class="icon-wrapper">
+                        <i class="fas fa-ambulance fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card stats-card-danger p-4 animate-card shadow">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase opacity-75 mb-3">Temps Moyen</h6>
+                        <h2 class="display-4 fw-bold mb-2">@Model.DoctorStatisticsInfo.AverageConsultationTime<span class="h4">min</span></h2>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-clock me-2 opacity-75"></i>
+                            <small class="opacity-75">
+                                @Model.GlobalStatistics.AvgTriageTime.Minutes min triage
+                            </small>
+                        </div>
+                    </div>
+                    <div class="icon-wrapper">
+                        <i class="fas fa-stopwatch fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="glass-card p-4 shadow">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-primary bg-gradient rounded-circle p-2 me-3">
+                        <i class="fas fa-chart-bar fa-lg text-white"></i>
+                    </div>
+                    <h4 class="mb-0 fw-bold text-dark">Statistiques Détaillées</h4>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-3 col-6">
+                        <div class="quick-stat h-100">
+                            <div class="text-primary display-5 fw-bold mb-2">@Model.DoctorStatisticsInfo.CompletedAppointmentsCount</div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle text-primary me-2"></i>
+                                <small class="text-muted">RDV Terminés</small>
+                            </div>
+                            <div class="progress mt-3" style="height: 6px;">
+                                <div class="progress-bar bg-primary" style="width: 85%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-6">
+                        <div class="quick-stat h-100">
+                            <div class="text-success display-5 fw-bold mb-2">@Model.DoctorStatisticsInfo.MyAppointmentsThisWeek</div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-calendar-week text-success me-2"></i>
+                                <small class="text-muted">RDV Cette Semaine</small>
+                            </div>
+                            <div class="progress mt-3" style="height: 6px;">
+                                <div class="progress-bar bg-success" style="width: 70%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-6">
+                        <div class="quick-stat h-100">
+                            <div class="text-warning display-5 fw-bold mb-2">@Model.DoctorStatisticsInfo.PatientRating<span class="h6">/5</span></div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-star text-warning me-2"></i>
+                                <small class="text-muted">Note Moyenne</small>
+                            </div>
+                            <div class="progress mt-3" style="height: 6px;">
+                                <div class="progress-bar bg-warning" style="width: @(Model.DoctorStatisticsInfo.PatientRating * 20)%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-6">
+                        <div class="quick-stat h-100">
+                            <div class="text-info display-5 fw-bold mb-2">@Model.DoctorStatisticsInfo.AverageConsultationTime<span class="h6">min</span></div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-clock text-info me-2"></i>
+                                <small class="text-muted">Minutes/RDV</small>
+                            </div>
+                            <div class="progress mt-3" style="height: 6px;">
+                                <div class="progress-bar bg-info" style="width: 60%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Modal (Structure de base) -->
+    <div class="modal fade" id="quickActionsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-card border-0">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-bolt text-primary me-2"></i>
+                        Actions Rapides
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Contenu du modal -->
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Toggle disponibilité
+    document.getElementById('availabilityToggle').addEventListener('click', function() {
+        const isAvailable = this.dataset.available === 'true';
+        const newState = !isAvailable;
+
+        // Animation de bascule
+        this.classList.add('opacity-50');
+        setTimeout(() => {
+            this.dataset.available = newState.toString();
+            if (newState) {
+                this.classList.remove('btn-medical-secondary');
+                this.classList.add('btn-medical-success');
+                this.innerHTML = '<i class="fas fa-user-clock me-2"></i> Rendre Indisponible';
+            } else {
+                this.classList.remove('btn-medical-success');
+                this.classList.add('btn-medical-secondary');
+                this.innerHTML = '<i class="fas fa-user-clock me-2"></i> Rendre Disponible';
+            }
+            this.classList.remove('opacity-50');
+        }, 300);
+
+        // Ici, ajouter l'appel API pour mettre à jour la disponibilité
+        fetch('/api/doctor/availability', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isAvailable: newState })
+        });
+    });
+
+    // Animation au chargement
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.animate-card');
+        cards.forEach(card => {
+            card.style.opacity = '0';
+        });
+
+        setTimeout(() => {
+            cards.forEach(card => {
+                card.style.opacity = '1';
+            });
+        }, 100);
+    });
+</script>

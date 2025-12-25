@@ -1,41 +1,71 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedicalTriageSystem.Models
 {
-    [Table("Doctors")]
     public class Doctor
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [ForeignKey("User")]
         public int? UserId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Le nom est obligatoire")]
         [StringLength(100)]
-        public string Name { get; set; }
+        [Display(Name = "Nom Complet")]
+        // Suppression du initialiseur string.Empty pour les champs qui peuvent être NULL en DB
+        public string? Name { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "La spécialité est obligatoire")]
         [StringLength(100)]
-        public string Specialty { get; set; }
+        [Display(Name = "Spécialité")]
+        public string? Specialty { get; set; }
 
-        [StringLength(20)]
-        public string Phone { get; set; }
+        [Required(ErrorMessage = "Le numéro de licence est obligatoire")]
+        [StringLength(50)]
+        [Display(Name = "Numéro de Licence")]
+        public string? LicenseNumber { get; set; }
+
+        [Phone]
+        [Display(Name = "Téléphone")]
+        public string? Phone { get; set; }
 
         [EmailAddress]
-        [StringLength(100)]
-        public string Email { get; set; }
+        [Display(Name = "Email Professionnel")]
+        public string? Email { get; set; }
 
+        [Display(Name = "Disponible")]
         public bool IsAvailable { get; set; } = true;
 
-        [StringLength(100)]
-        public string Availability { get; set; }
+        // --- CORRECTION ICI ---
+        [Display(Name = "Horaires de disponibilité")]
+        public string? Availability { get; set; }
 
-        // Navigation properties
-        public virtual User User { get; set; }
-        public virtual ICollection<TriageResult> TriageResults { get; set; } = new List<TriageResult>();
-        public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+        [Range(0, 60)]
+        [Display(Name = "Années d'expérience")]
+        public int? YearsOfExperience { get; set; }
+
+        [Display(Name = "Qualifications / Diplômes")]
+        public string? Qualifications { get; set; }
+
+        [DataType(DataType.MultilineText)]
+        public string? Biography { get; set; }
+
+        [Display(Name = "Frais de consultation")]
+        public string? ConsultationFee { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        // --- Propriétés de Navigation ---
+
+        [ForeignKey("UserId")]
+        public virtual User? User { get; set; }
+
+        public virtual List<TriageResult> TriageResults { get; set; } = new();
+
+        public virtual List<Appointment> Appointments { get; set; } = new();
     }
 }

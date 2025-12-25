@@ -1,0 +1,49 @@
+﻿@model IEnumerable<MedicalTriageSystem.Models.Doctor>
+@{
+    ViewData["Title"] = "Médecins Disponibles";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid">
+    <div class="page-header mb-4">
+        <h1 class="page-title">
+            <i class="fas fa-user-md me-2"></i> Médecins Disponibles
+        </h1>
+    </div>
+
+    <div class="row">
+        @if (Model.Any())
+        {
+            foreach (var doctor in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card shadow h-100">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-user-md fa-4x text-primary mb-4"></i>
+                            <h5 class="card-title fw-bold">@doctor.Name</h5>
+                            <p class="text-muted mb-3">@doctor.Specialty</p>
+                            @if (!string.IsNullOrEmpty(doctor.Phone))
+                            {
+                                <p><i class="fas fa-phone me-2"></i>@doctor.Phone</p>
+                            }
+                            @if (!string.IsNullOrEmpty(doctor.Email))
+                            {
+                                <p><i class="fas fa-envelope me-2"></i>@doctor.Email</p>
+                            }
+                            <span class="badge bg-success fs-6">Disponible</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-info-circle fa-3x mb-3"></i>
+                    <h4>Aucun médecin disponible pour le moment</h4>
+                </div>
+            </div>
+        }
+    </div>
+</div>

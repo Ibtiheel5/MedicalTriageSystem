@@ -8,7 +8,7 @@ namespace MedicalTriageSystem.Controllers
     {
         public IActionResult Dashboard()
         {
-            return RedirectToAction("Dashboard", "PatientDashboard");
+            return RedirectToAction("PatientDashboard", "PatientsDashboard");  // Mettre à jour
         }
 
         public IActionResult Index()

@@ -1,206 +1,257 @@
-﻿@model MedicalTriageSystem.Models.ViewModels.PatientDashboardViewModel
+﻿@model MedicalTriageSystem.Models.ViewModels.AdminDashboardViewModel
 @{
-    ViewData["Title"] = "Dashboard Patient";
-    Layout = "_DashboardLayout";  // ⚠️ Changé pour utiliser le layout admin-like
+    ViewData["Title"] = "Tableau de Bord Administrateur";
 }
 
-<div class="container-fluid">
-    <!-- Page Header -->
-    <div class="page-header mb-4">
-        <div class="row align-items-center">
-            <div class="col">
-                <h1 class="page-title">
-                    <i class="fas fa-tachometer-alt me-2"></i> Mon Dashboard
-                </h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item active">Dashboard Patient</li>
-                    </ol>
-                </nav>
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-1">
+                <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                Tableau de Bord Administrateur
+            </h1>
+            <p class="text-muted mb-0">Aperçu général du système médical</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button id="refreshBtn" class="btn btn-outline-primary">
+                <i class="fas fa-sync-alt me-2"></i> Actualiser
+            </button>
+            <button id="exportBtn" class="btn btn-outline-success">
+                <i class="fas fa-download me-2"></i> Exporter
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card medical-card border-left-primary border-start-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted mb-0">Patients</h6>
+                            <h2 class="mb-0">@Model.Statistics.TotalPatients</h2>
+                            <small class="text-success">
+                                <i class="fas fa-arrow-up me-1"></i>
+                                @(Model.RecentPatients.Count) nouveaux
+                            </small>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-users fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-auto">
-                <div class="btn-group">
-                    <button class="btn btn-primary">
-                        <i class="fas fa-sync-alt me-1"></i>Actualiser
-                    </button>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card medical-card border-left-success border-start-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted mb-0">Médecins</h6>
+                            <h2 class="mb-0">@Model.Statistics.TotalDoctors</h2>
+                            <small class="text-success">
+                                @Model.DoctorAvailability.Count disponibles
+                            </small>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-user-md fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card medical-card border-left-warning border-start-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted mb-0">Triage</h6>
+                            <h2 class="mb-0">@Model.Statistics.TotalTriages</h2>
+                            <small class="text-warning">
+                                @Model.Statistics.TodayTriagesCount aujourd'hui
+                            </small>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-stethoscope fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card medical-card border-left-danger border-start-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted mb-0">Cas Urgents</h6>
+                            <h2 class="mb-0">@Model.Statistics.UrgentCasesCount</h2>
+                            <small class="text-danger">
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                                Attention requise
+                            </small>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Statistics Cards (adapté aux stats personnelles) -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Mes Triages</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.TotalTriages</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-stethoscope fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Cas Urgents</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.UrgentCases</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Triages Aujourd'hui</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.TodayTriages</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Triages Semaine</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Statistics.WeekTriages</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar-week fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Symptoms (au lieu de Recent Patients) -->
-    <div class="row mb-4">
+    <!-- Graphique et Activités -->
+    <div class="row g-4">
+        <!-- Graphique -->
         <div class="col-xl-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Symptômes Récents</h6>
+            <div class="card medical-card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Activité des 7 derniers jours
+                    </h5>
                 </div>
                 <div class="card-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Description</th>
-                                <th>Sévérité</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var symptom in Model.RecentSymptoms)
-                            {
-                                <tr>
-                                    <td>@symptom.Description</td>
-                                    <td>@symptom.Severity</td>
-                                    <td>@symptom.Date.ToString("dd/MM/yyyy")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                    <div class="chart-container">
+                        <canvas id="activityChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Urgent Cases (personnels) -->
+        <!-- Médecins disponibles -->
         <div class="col-xl-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-danger">Cas Urgents</h6>
+            <div class="card medical-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-md me-2"></i>
+                            Médecins disponibles
+                        </h5>
+                        <span class="badge bg-success">@Model.DoctorAvailability.Count</span>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <ul class="list-group">
-                        @foreach (var triage in Model.UrgentCases)
-                        {
-                            <li class="list-group-item">
-                                Score: @triage.Score - @triage.CreatedAt.ToString("dd/MM/yyyy")
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Upcoming Appointments -->
-    <div class="row mb-4">
-        <div class="col-xl-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Rendez-vous À Venir</h6>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group">
-                        @foreach (var appt in Model.UpcomingAppointments)
-                        {
-                            <li class="list-group-item">
-                                @appt.Date.ToString("dd/MM/yyyy") - @appt.Reason (avec @appt.Doctor?.Name)
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Doctor Availability (général, comme admin) -->
-        <div class="col-xl-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-success">Médecins Disponibles</h6>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group">
+                    <div class="list-group list-group-flush">
                         @foreach (var doctor in Model.DoctorAvailability)
                         {
-                            <li class="list-group-item">
-                                @doctor.Name - @doctor.Specialty
-                            </li>
+                            <div class="list-group-item border-0 px-0 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="avatar-sm bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-user-md text-info"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-1">@doctor.Name</h6>
+                                        <small class="text-muted">@doctor.Specialty</small>
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <span class="badge bg-success">Disponible</span>
+                                    </div>
+                                </div>
+                            </div>
                         }
-                    </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Dernier Triage -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header bg-info text-white">
-                    <h5>Dernier Triage</h5>
+    <!-- Patients récents et Cas urgents -->
+    <div class="row g-4 mt-4">
+        <!-- Patients récents -->
+        <div class="col-xl-6">
+            <div class="card medical-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Patients récents
+                    </h5>
                 </div>
                 <div class="card-body">
-                    @if (Model.LastTriage != null)
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Téléphone</th>
+                                    <th>Date d'inscription</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var patient in Model.RecentPatients)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                    <i class="fas fa-user text-primary"></i>
+                                                </div>
+                                                <div>@patient.Name</div>
+                                            </div>
+                                        </td>
+                                        <td>@patient.Email</td>
+                                        <td>@patient.Phone</td>
+                                        <td>@patient.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cas urgents -->
+        <div class="col-xl-6">
+            <div class="card medical-card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Cas urgents
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.UrgentCasesList.Any())
                     {
-                        <p>Niveau: @Model.LastTriage.Level - Score: @Model.LastTriage.Score</p>
+                        <div class="list-group list-group-flush">
+                            @foreach (var triage in Model.UrgentCasesList)
+                            {
+                                <div class="list-group-item border-0 px-0 py-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="avatar-sm bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="fas fa-ambulance text-danger"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h6 class="mb-1">@triage.Patient?.Name</h6>
+                                                <span class="badge bg-danger">@triage.Level</span>
+                                            </div>
+                                            <p class="mb-1 small">Score: @triage.Score - @triage.Recommendation</p>
+                                            <small class="text-muted">
+                                                <i class="far fa-clock me-1"></i>
+                                                @triage.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     }
                     else
                     {
-                        <p>Aucun triage récent.</p>
+                        <div class="text-center py-5">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h5 class="text-success">Aucun cas urgent</h5>
+                            <p class="text-muted">Tous les patients sont stables</p>
+                        </div>
                     }
                 </div>
             </div>
@@ -209,14 +260,92 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Scripts de l'admin (copiés : update time, etc.)
-        function updateServerTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            document.getElementById('currentTime').textContent = timeString;
+        $(document).ready(function() {
+            // Initialiser le graphique
+            initializeChart();
+
+            // Bouton d'actualisation
+            $('#refreshBtn').click(function() {
+                $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Actualisation...');
+
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            });
+
+            // Bouton d'export
+            $('#exportBtn').click(function() {
+                exportDashboardData();
+            });
+
+            // Auto-refresh toutes les 30 secondes
+            setInterval(() => {
+                updateStats();
+            }, 30000);
+        });
+
+        function initializeChart() {
+            var ctx = document.getElementById('activityChart').getContext('2d');
+
+            // Récupérer les données via AJAX
+            $.get('/Dashboard/GetChartData?period=week', function(data) {
+                var chart = new Chart(ctx, {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            });
         }
-        setInterval(updateServerTime, 1000);
-        updateServerTime();
+
+        function updateStats() {
+            $.get('/Dashboard/GetStats', function(response) {
+                if (response.success) {
+                    // Mettre à jour les statistiques si nécessaire
+                    console.log('Stats mises à jour:', response.data);
+                }
+            });
+        }
+
+        function exportDashboardData() {
+            // Simuler un téléchargement
+            var data = {
+                timestamp: new Date().toISOString(),
+                stats: @Json.Serialize(Model.Statistics),
+                recentPatients: @Model.RecentPatients.Count,
+                urgentCases: @Model.UrgentCasesList.Count
+            };
+
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+            var downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "dashboard-export-" + new Date().toISOString().split('T')[0] + ".json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+
+            toastr.success('Export terminé avec succès');
+        }
     </script>
 }

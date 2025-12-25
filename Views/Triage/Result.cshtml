@@ -1,66 +1,136 @@
-﻿@{
+﻿@model MedicalTriageSystem.Models.TriageResult
+
+@{
     ViewData["Title"] = "Résultat du Triage";
-    var level = ViewBag.Level as string ?? "Normal";
-    var levelClass = level switch
-    {
-        "Urgent" => "danger",
-        "Élevé" => "warning",
-        "Normal" => "info",
-        "Faible" => "success",
-        _ => "info"
-    };
 }
 
-<div class="container py-5">
+<style>
+    .result-header {
+        background-color: #f8f9fa;
+        padding: 40px 0;
+        text-align: center;
+    }
+
+    .status-banner {
+        padding: 20px;
+        color: white;
+        border-radius: 10px 10px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .bg-urgent {
+        background: linear-gradient(135deg, #dc3545 0%, #ff4d4d 100%);
+    }
+
+    .bg-moyen {
+        background: linear-gradient(135deg, #ffc107 0%, #ffdb4d 100%);
+    }
+
+    .bg-faible {
+        background: linear-gradient(135deg, #198754 0%, #28a745 100%);
+    }
+
+    .score-circle {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 10px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="text-center mb-5">
+        <div class="display-4 text-primary mb-2">
+            <i class="bi bi-clipboard2-check"></i>
+        </div>
+        <h1 class="fw-bold text-primary">Résultat du Triage</h1>
+        <p class="lead text-muted">Évaluation complète de votre situation médicale</p>
+    </div>
+
     <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="text-center mb-5">
-                <h1 class="display-5 fw-bold text-primary mb-3">
-                    <i class="bi bi-clipboard2-check me-2"></i>Résultat du Triage
-                </h1>
-                <p class="lead text-muted">Évaluation complète de votre situation médicale</p>
+        <div class="col-lg-9">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                @{
+                    string statusClass = Model.Level == "Urgent" ? "bg-urgent" : (Model.Level == "Moyen" ? "bg-moyen" : "bg-primary");
+                }
+                <div class="status-banner @statusClass">
+                    <div>
+                        <h2 class="mb-0 fw-bold">Bonjour</h2>
+                        <small class="opacity-75">Référence: #TRG-@Model.Id.ToString("D5")@DateTime.Now.ToString("yyyyMMdd")</small>
+                    </div>
+                    <div class="bg-white text-dark px-3 py-1 rounded-3 fw-bold">
+                        <i class="bi bi-calendar3 me-2 text-primary"></i> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                    </div>
+                </div>
+
+                <div class="card-body p-5">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center border-end">
+                            <h5 class="text-muted mb-3">Score de Gravité</h5>
+                            <div class="score-circle @(Model.Score >= 70 ? "text-danger" : "text-primary")"
+                                 style="border-top-color: @(Model.Score >= 70 ? "#dc3545" : "#0d6efd");">
+                                @Model.Score%
+                            </div>
+                            <p class="mt-3 fw-bold fs-5">Niveau : @Model.Level</p>
+                        </div>
+
+                        <div class="col-md-8 ps-md-5">
+                            <h4 class="mb-3"><i class="bi bi-info-circle text-primary"></i> Analyse de vos symptômes</h4>
+                            <div class="p-3 bg-light rounded-3 mb-4">
+                                <strong>Symptômes déclarés :</strong><br />
+                                <span class="text-muted">@Model.Symptoms</span>
+                            </div>
+
+                            <div class="alert @(Model.Level == "Urgent" ? "alert-danger" : "alert-info") d-flex align-items-center border-0 shadow-sm">
+                                <i class="bi bi-exclamation-octagon-fill fs-3 me-3"></i>
+                                <div>
+                                    <h5 class="alert-heading mb-1">Notre Recommandation</h5>
+                                    <p class="mb-0">@Model.Recommendation</p>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.Notes))
+                            {
+                                <div class="mt-3">
+                                    <h6>Vos notes complémentaires :</h6>
+                                    <p class="text-muted italic small">"@Model.Notes"</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <hr class="my-5" />
+
+                    <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+                        <a asp-controller="PatientDashboard" asp-action="Dashboard" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
+                            <i class="bi bi-house-door me-2"></i> Retour à mon dashboard
+                        </a>
+                        <a asp-action="History" class="btn btn-outline-secondary btn-lg px-5 rounded-pill">
+                            <i class="bi bi-clock-history me-2"></i> Voir mon historique
+                        </a>
+                        @if (Model.Level != "Faible")
+                        {
+                            <a asp-controller="Appointments" asp-action="Create" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm">
+                                <i class="bi bi-calendar-plus me-2"></i> Prendre rendez-vous
+                            </a>
+                        }
+                    </div>
+                </div>
             </div>
 
-            <div class="card shadow-lg border-0 mb-4">
-                <div class="card-header bg-gradient bg-primary text-white py-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3 class="mb-0">Bonjour @ViewBag.PatientName</h3>
-                            <p class="mb-0 opacity-75">Référence: #TRG-@DateTime.Now.ToString("yyyyMMddHHmmss")</p>
-                        </div>
-                        <div class="text-end">
-                            <div class="badge bg-white text-primary fs-6 px-3 py-2">
-                                <i class="bi bi-calendar3 me-1"></i>@DateTime.Now.ToString("dd/MM/yyyy HH:mm")
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-body p-4">
-                    <div class="alert alert-level-@levelClass text-center py-4 mb-4">
-                        <i class="bi bi-exclamation-triangle-fill fs-1 mb-3"></i>
-                        <h4 class="alert-heading">Niveau d'urgence : @level</h4>
-                        <p class="lead mb-0">Recommandation : @ViewBag.Recommendation</p>
-                    </div>
-
-                    <div class="text-center">
-                        <a asp-controller="PatientDashboard" asp-action="Index" class="btn btn-primary btn-lg">
-                            <i class="bi bi-tachometer me-2"></i>Retour à mon dashboard
-                        </a>
-                    </div>
-                </div>
+            <div class="text-center mt-4">
+                <small class="text-muted">
+                    <i class="bi bi-shield-lock me-1"></i> Vos données sont protégées. Cette analyse automatisée ne remplace pas un diagnostic médical définitif.
+                </small>
             </div>
         </div>
     </div>
 </div>
-
-@section Styles {
-    <style>
-        .alert-level-danger {
-            background: linear-gradient(135deg, #dc3545, #ff6b6b);
-            box-shadow: 0 0 20px rgba(220, 53, 69, 0.3);
-        }
-
-        /* Autres styles inchangés */
-    </style>
-}

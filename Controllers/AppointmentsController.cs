@@ -3,10 +3,11 @@ using MedicalTriageSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace MedicalTriageSystem.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Doctor,Patient")]
     public class AppointmentsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -16,86 +17,11 @@ namespace MedicalTriageSystem.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
-        {
-            var appointments = await _context.Appointments
-                .Include(a => a.Patient)
-                .Include(a => a.Doctor)
-                .OrderBy(a => a.Date) // ✅ Utiliser Date (nom de colonne dans la table)
-                .ThenBy(a => a.StartTime) // ✅ Utiliser StarTime (nom de colonne)
-                .ToListAsync();
-
-            return View(appointments);
-        }
-
-        public IActionResult Calendar()
-        {
-            return View();
-        }
-
         [HttpGet]
-        public async Task<IActionResult> GetCalendarEvents()
+        public async Task<IActionResult> Create()
         {
-            var appointments = await _context.Appointments
-                .Include(a => a.Patient)
-                .Include(a => a.Doctor)
-                .Select(a => new
-                {
-                    id = a.Id,
-                    title = a.Doctor != null
-                        ? $"{a.Patient.Name} - {a.Doctor.Name}"
-                        : a.Patient.Name,
-                    start = a.Date.ToString("yyyy-MM-dd") + "T" +
-                           (a.StartTime != null ? a.StartTime.Value.ToString(@"hh\:mm\:ss") : "09:00:00"),
-                    end = a.Date.ToString("yyyy-MM-dd") + "T" +
-                         (a.EndTime != null ? a.EndTime.Value.ToString(@"hh\:mm\:ss") : "09:30:00"),
-                    color = GetAppointmentColor(a.Status),
-                    extendedProps = new
-                    {
-                        patient = a.Patient.Name,
-                        doctor = a.Doctor != null ? a.Doctor.Name : "Non assigné", // ✅ CORRECTION
-                        reason = a.Reason, // ✅ Utiliser Reason (nom de colonne)
-                        status = a.Status,
-                        notes = a.Notes
-                    }
-                })
-                .ToListAsync();
-
-            return Json(appointments);
-        }
-
-        private string GetAppointmentColor(string status)
-        {
-            return status switch
-            {
-                "Scheduled" => "#3182ce",
-                "Completed" => "#38a169",
-                "Cancelled" => "#e53e3e",
-                _ => "#a0aec0"
-            };
-        }
-
-        // Méthodes supplémentaires
-        public async Task<IActionResult> Details(int id)
-        {
-            var appointment = await _context.Appointments
-                .Include(a => a.Patient)
-                .Include(a => a.Doctor)
-                .FirstOrDefaultAsync(a => a.Id == id);
-
-            if (appointment == null)
-            {
-                return NotFound();
-            }
-
-            return View(appointment);
-        }
-
-        [HttpGet]
-        public IActionResult Create()
-        {
-            ViewBag.Patients = _context.Patients.ToList();
-            ViewBag.Doctors = _context.Doctors.ToList();
+            ViewBag.Patients = await _context.Patients.OrderBy(p => p.Name).ToListAsync();
+            ViewBag.Doctors = await _context.Doctors.OrderBy(d => d.Name).ToListAsync();
             return View();
         }
 
@@ -103,17 +29,87 @@ namespace MedicalTriageSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Appointment appointment)
         {
-            if (ModelState.IsValid)
+            // Supprimer les validations d'objets complexes pour éviter les erreurs ModelState
+            ModelState.Remove("Patient");
+            ModelState.Remove("Doctor");
+
+            if (User.IsInRole("Patient"))
             {
-                appointment.CreatedAt = DateTime.UtcNow;
-                appointment.UpdatedAt = DateTime.UtcNow;
-                _context.Appointments.Add(appointment);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!string.IsNullOrEmpty(userIdString))
+                {
+                    int userId = int.Parse(userIdString);
+                    var patient = await _context.Patients.FirstOrDefaultAsync(p => p.UserId == userId);
+                    if (patient != null)
+                    {
+                        appointment.PatientId = patient.Id;
+                        ModelState.Remove("PatientId");
+                    }
+                }
             }
 
-            ViewBag.Patients = _context.Patients.ToList();
-            ViewBag.Doctors = _context.Doctors.ToList();
+            if (ModelState.IsValid)
+            {
+                appointment.CreatedAt = DateTime.Now;
+                _context.Add(appointment);
+                await _context.SaveChangesAsync();
+
+                // CORRECTION DE LA REDIRECTION :
+                // Si l'utilisateur est un patient, on ne le renvoie PAS vers le DoctorDashboard
+                if (User.IsInRole("Patient"))
+                {
+                    // Redirigez vers l'historique de triage ou une page d'accueil patient
+                    return RedirectToAction("History", "Triage");
+                }
+
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.Patients = await _context.Patients.OrderBy(p => p.Name).ToListAsync();
+            ViewBag.Doctors = await _context.Doctors.OrderBy(d => d.Name).ToListAsync();
+            return View(appointment);
+        }
+
+        [Authorize(Roles = "Admin,Doctor")]
+        public async Task<IActionResult> Index()
+        {
+            var appointments = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .OrderBy(a => a.Date)
+                .ToListAsync();
+
+            return View(appointments);
+        }
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // On récupère le rendez-vous en incluant les données du Patient et du Docteur
+            var appointment = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (appointment == null)
+            {
+                // Si l'ID n'existe pas en base, on affiche une page 404 propre
+                return NotFound();
+            }
+
+            // Sécurité : Un patient ne peut voir que SES détails
+            if (User.IsInRole("Patient"))
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                if (appointment.Patient?.UserId != userId)
+                {
+                    return Forbid(); // Accès refusé si ce n'est pas son RDV
+                }
+            }
+
             return View(appointment);
         }
     }

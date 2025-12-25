@@ -1,118 +1,35 @@
-﻿using MedicalTriageSystem.Data;
-using MedicalTriageSystem.Models;
+﻿using MedicalTriageSystem.Models;
 using MedicalTriageSystem.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace MedicalTriageSystem.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class DashboardController : Controller
     {
-        private readonly ApplicationDbContext _context;
-
-        public DashboardController(ApplicationDbContext context)
+        public IActionResult Index()
         {
-            _context = context;
-        }
-
-        public async Task<IActionResult> Index()
-        {
-            try
+            // On utilise AdminDashboardViewModel au lieu de AdminDashboardSimpleViewModel
+            var model = new AdminDashboardViewModel
             {
-                ViewData["Title"] = "Tableau de bord";
-
-                var stats = await GetStatisticsAsync();
-                var recentPatients = await GetRecentPatientsAsync();
-                var urgentCases = await GetUrgentCasesAsync();
-                var doctors = await GetDoctorAvailabilityAsync();
-
-                var dashboardData = new DashboardViewModel
+                Statistics = new DashboardStatsViewModel // Notez le changement de nom ici aussi
                 {
-                    Statistics = stats,
-                    RecentPatients = recentPatients,
-                    UrgentCases = urgentCases,
-                    DoctorAvailability = doctors
-                };
-
-                return View(dashboardData);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erreur Dashboard: {ex.Message}");
-                return View(new DashboardViewModel());
-            }
-        }
-
-        private async Task<DashboardStatistics> GetStatisticsAsync()
-        {
-            try
-            {
-                return new DashboardStatistics
-                {
-                    TotalPatients = await _context.Patients.CountAsync(),
-                    TotalDoctors = await _context.Doctors.CountAsync(),
-                    TotalTriages = await _context.TriageResults.CountAsync(),
-                    UrgentCases = await _context.TriageResults.CountAsync(tr => tr.Level == "Urgent"),
-                    TodayTriages = await _context.TriageResults
-                        .CountAsync(tr => tr.CreatedAt.Date == DateTime.Today), // ✅ CORRIGÉ: CreatedAt.Date
-                    WeekTriages = 0, // Temporaire
+                    TotalPatients = 150,
+                    TotalDoctors = 25,
+                    TotalTriages = 500,
+                    UrgentCasesCount = 12,
+                    TodayTriagesCount = 45,
                     AvgTriageTime = TimeSpan.FromMinutes(15)
-                };
-            }
-            catch
-            {
-                return new DashboardStatistics();
-            }
-        }
+                },
+                RecentPatients = new List<Patient>(), // Liste vide pour l'instant
+                UrgentCasesList = new List<TriageResult>(),
+                DoctorAvailability = new List<Doctor>(),
+                UpcomingAppointments = new List<Appointment>()
+            };
 
-        private async Task<List<Patient>> GetRecentPatientsAsync()
-        {
-            try
-            {
-                return await _context.Patients
-                    .Include(p => p.TriageResults)
-                        .ThenInclude(tr => tr.Doctor)
-                    .OrderByDescending(p => p.CreatedAt) // ✅ Utilise CreatedAt
-                    .Take(10)
-                    .ToListAsync();
-            }
-            catch
-            {
-                return new List<Patient>();
-            }
-        }
-
-        private async Task<List<TriageResult>> GetUrgentCasesAsync()
-        {
-            try
-            {
-                return await _context.TriageResults
-                    .Include(tr => tr.Patient)
-                    .Where(tr => tr.Level == "Urgent")
-                    .OrderByDescending(tr => tr.CreatedAt) // ✅ CORRIGÉ: CreatedAt au lieu de Date
-                    .Take(5)
-                    .ToListAsync();
-            }
-            catch
-            {
-                return new List<TriageResult>();
-            }
-        }
-
-        private async Task<List<Doctor>> GetDoctorAvailabilityAsync()
-        {
-            try
-            {
-                return await _context.Doctors
-                    .OrderBy(d => d.IsAvailable ? 0 : 1)
-                    .ThenBy(d => d.Name)
-                    .Take(5)
-                    .ToListAsync();
-            }
-            catch
-            {
-                return new List<Doctor>();
-            }
+            return View(model);
         }
     }
 }

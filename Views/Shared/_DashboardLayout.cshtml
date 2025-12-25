@@ -40,44 +40,46 @@
         <ul class="sidebar-nav">
             <li class="nav-item">
                 <a class="nav-link active" href="/Home/Dashboard">
-                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    <i class="fas fa-tachometer-alt me-2"></i> Tableau de Bord
                 </a>
             </li>
 
+            <!-- Menus visibles SEULEMENT pour Admin et Doctor -->
             @if (User.IsInRole("Admin") || User.IsInRole("Doctor"))
             {
                 <li class="nav-item">
-                    <a class="nav-link" href="/Patients">
+                    <a class="nav-link" href="/Patients/Index">
                         <i class="fas fa-users me-2"></i> Patients
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/Doctors">
+                    <a class="nav-link" href="/Doctors/Index">
                         <i class="fas fa-user-md me-2"></i> Médecins
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/TriageResults">
+                    <a class="nav-link" href="/TriageResults/Index">
                         <i class="fas fa-stethoscope me-2"></i> Résultats Triage
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/Appointments">
+                    <a class="nav-link" href="/Appointments/Index">
                         <i class="fas fa-calendar-check me-2"></i> Rendez-vous
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/Notifications">
+                    <a class="nav-link" href="/Notifications/Index">
                         <i class="fas fa-bell me-2"></i> Notifications
                     </a>
                 </li>
             }
 
+            <!-- Menus visibles SEULEMENT pour les Patients -->
             @if (User.IsInRole("Patient"))
             {
                 <li class="nav-item">
                     <a class="nav-link" href="/Triage/Quick">
-                        <i class="bi bi-lightning me-2"></i> Triage Rapide
+                        <i class="bi bi-lightning-charge me-2"></i> Triage Rapide
                     </a>
                 </li>
                 <li class="nav-item">
@@ -87,7 +89,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/Appointments/Create">
-                        <i class="bi bi-calendar-plus me-2"></i> Prendre RDV
+                        <i class="bi bi-calendar-plus me-2"></i> Prendre Rendez-vous
                     </a>
                 </li>
                 <li class="nav-item">
@@ -95,10 +97,21 @@
                         <i class="bi bi-activity me-2"></i> Mes Symptômes
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/AvailableDoctors">
+                        <i class="fas fa-user-md me-2"></i> Médecins Disponibles
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/MyTriageResults">
+                        <i class="fas fa-stethoscope me-2"></i> Mes Résultats de Triage
+                    </a>
+                </li>
             }
 
-            <li class="nav-item">
-                <a class="nav-link" href="/Auth/Logout">
+            <!-- Déconnexion pour tout le monde -->
+            <li class="nav-item mt-auto">
+                <a class="nav-link text-danger" href="/Auth/Logout">
                     <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
                 </a>
             </li>

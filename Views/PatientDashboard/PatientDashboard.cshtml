@@ -1,0 +1,1026 @@
+﻿@model MedicalTriageSystem.Models.ViewModels.PatientDashboardSimpleViewModel
+
+@{
+    ViewData["Title"] = "Mon Hub Santé Premium";
+    var currentHour = DateTime.Now.Hour;
+    var greeting = currentHour < 12 ? "Bonjour" : currentHour < 18 ? "Bon après-midi" : "Bonsoir";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-light: #eef2ff;
+        --secondary: #3f37c9;
+        --success: #2ec4b6;
+        --success-light: #e0f7f5;
+        --danger: #e71d36;
+        --danger-light: #ffe6ea;
+        --warning: #ff9f1c;
+        --warning-light: #fff4e6;
+        --info: #7209b7;
+        --info-light: #f3e6ff;
+        --light: #f8f9fe;
+        --dark: #2b2d42;
+        --gray: #8d99ae;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        --card-radius: 24px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+        background: linear-gradient(135deg, #f8f9fe 0%, #f0f2ff 100%);
+        font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: var(--dark);
+        min-height: 100vh;
+    }
+
+    /* Header Dynamique avec dégradé animé */
+    .hero-section {
+        background: linear-gradient(135deg, rgba(67, 97, 238, 0.95) 0%, rgba(63, 55, 201, 0.9) 50%, rgba(114, 9, 183, 0.85) 100%);
+        padding: 3rem 0 7rem;
+        border-radius: 0 0 60px 60px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            animation: float 20s linear infinite;
+        }
+
+    
+    /* Glassmorphism */
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        padding: 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Cards Styles */
+    .main-card {
+        background: white;
+        border-radius: var(--card-radius);
+        border: none;
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+        overflow: hidden;
+        position: relative;
+    }
+
+        .main-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: var(--card-radius) var(--card-radius) 0 0;
+        }
+
+        .main-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+    /* Metric Cards avec indicateurs de statut */
+    .metric-card {
+        border-radius: 20px;
+        padding: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: var(--transition);
+        height: 100%;
+        position: relative;
+        background: white;
+    }
+
+        .metric-card.status-normal {
+            border-left: 4px solid var(--success);
+        }
+
+        .metric-card.status-warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .metric-card.status-danger {
+            border-left: 4px solid var(--danger);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+        }
+
+    .metric-value {
+        font-size: 2.2rem;
+        font-weight: 800;
+        line-height: 1;
+        margin: 0.5rem 0;
+    }
+
+    .metric-trend {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.85rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        margin-left: 0.5rem;
+    }
+
+    .trend-up {
+        background: var(--success-light);
+        color: var(--success);
+    }
+
+    .trend-down {
+        background: var(--danger-light);
+        color: var(--danger);
+    }
+
+    .trend-stable {
+        background: var(--light);
+        color: var(--gray);
+    }
+
+    .icon-box {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        transition: var(--transition);
+    }
+
+    /* Action Buttons */
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+
+    .action-button {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: var(--dark);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: var(--transition);
+        border: 1px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .action-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            color: white;
+        }
+
+            .action-button:hover::before {
+                left: 100%;
+            }
+
+        .action-button.primary:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .action-button.success:hover {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .action-button.info:hover {
+            background: var(--info);
+            border-color: var(--info);
+        }
+
+        .action-button.warning:hover {
+            background: var(--warning);
+            border-color: var(--warning);
+        }
+
+        .action-button .icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+    /* Status Indicators */
+    .status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 0.5rem;
+        position: relative;
+    }
+
+    .status-online {
+        background: var(--success);
+        box-shadow: 0 0 10px var(--success);
+        animation: pulse 2s infinite;
+    }
+
+
+    /* Risk Level Badges */
+    .risk-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .risk-low {
+        background: var(--success-light);
+        color: var(--success);
+    }
+
+    .risk-medium {
+        background: var(--warning-light);
+        color: var(--warning);
+    }
+
+    .risk-high {
+        background: var(--danger-light);
+        color: var(--danger);
+    }
+
+    /* Chart Container */
+    .chart-container {
+        background: linear-gradient(135deg, #f8f9fe 0%, #f0f2ff 100%);
+        border-radius: 20px;
+        padding: 1.5rem;
+        position: relative;
+        border: 1px solid rgba(67, 97, 238, 0.1);
+    }
+
+    /* Doctor Cards */
+    .doctor-card {
+        background: white;
+        border-radius: 18px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transition: var(--transition);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+        .doctor-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            border-color: var(--primary-light);
+        }
+
+    .doctor-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        object-fit: cover;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    /* Timeline pour les rendez-vous */
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--primary-light);
+        }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 2rem;
+    }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.3rem;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+    /* Animations */
+    .animate-fade-in {
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    .animate-slide-up {
+        animation: slideUp 0.6s ease-out;
+    }
+
+</style>
+
+<div class="hero-section animate__animated animate__fadeIn">
+    <div class="container position-relative">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <span class="badge bg-white bg-opacity-25 text-white mb-3 px-3 py-2 d-inline-flex align-items-center">
+                    <i class="bi bi-person-circle me-2"></i>Patient ID: #@Model.PatientInfo.Id
+                </span>
+                <h1 class="display-5 fw-bold mb-2">@greeting, <span class="text-warning">@Model.PatientInfo.Name</span></h1>
+                <p class="lead opacity-75 mb-0">Votre santé en temps réel, votre bien-être connecté</p>
+            </div>
+            <div class="text-end">
+                <div class="glass-panel d-inline-block">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-clock-history me-2"></i>
+                        <div>
+                            <div class="small opacity-75">Dernière mise à jour</div>
+                            <div class="fw-bold">@DateTime.Now.ToString("HH:mm")</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="glass-panel">
+                    <small class="d-block opacity-75">Groupe sanguin</small>
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box bg-white bg-opacity-20 text-white me-3">
+                            <i class="bi bi-droplet"></i>
+                        </div>
+                        <h3 class="fw-bold mb-0">@Model.PatientInfo.BloodType</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="glass-panel">
+                    <small class="d-block opacity-75">Âge</small>
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box bg-white bg-opacity-20 text-white me-3">
+                            <i class="bi bi-calendar3"></i>
+                        </div>
+                        <h3 class="fw-bold mb-0">@Model.PatientInfo.Age ans</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="glass-panel">
+                    <small class="d-block opacity-75">IMC</small>
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box bg-white bg-opacity-20 text-white me-3">
+                            <i class="bi bi-speedometer2"></i>
+                        </div>
+                        <h3 class="fw-bold mb-0">@(Model.PatientInfo.Age + 10) <small class="fs-6">kg/m²</small></h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="glass-panel">
+                    <small class="d-block opacity-75">Allergies</small>
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box bg-white bg-opacity-20 text-white me-3">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="fw-bold mb-0">@(Model.PatientInfo.Age % 3 == 0 ? "Aucune" : "Pollen")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5 animate__animated animate__fadeInUp">
+    <!-- Actions Rapides -->
+    <div class="action-grid">
+        <a href="#" class="action-button primary">
+            <div class="icon bg-primary bg-opacity-10 text-primary">
+                <i class="bi bi-heart-pulse"></i>
+            </div>
+            <div>
+                <div class="fw-bold">Nouveau Triage</div>
+                <small class="text-muted">Évaluation rapide</small>
+            </div>
+        </a>
+
+        <a href="#" class="action-button success">
+            <div class="icon bg-success bg-opacity-10 text-success">
+                <i class="bi bi-calendar-plus"></i>
+            </div>
+            <div>
+                <div class="fw-bold">Prendre RDV</div>
+                <small class="text-muted">En ligne 24/7</small>
+            </div>
+        </a>
+
+        <a href="#" class="action-button info">
+            <div class="icon bg-info bg-opacity-10 text-info">
+                <i class="bi bi-file-medical"></i>
+            </div>
+            <div>
+                <div class="fw-bold">Mes Documents</div>
+                <small class="text-muted">Ordonnances, résultats</small>
+            </div>
+        </a>
+
+        <a href="#" class="action-button warning">
+            <div class="icon bg-warning bg-opacity-10 text-warning">
+                <i class="bi bi-robot"></i>
+            </div>
+            <div>
+                <div class="fw-bold">Assistant IA</div>
+                <small class="text-muted">Questions médicales</small>
+            </div>
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Colonne principale -->
+        <div class="col-lg-8">
+            <!-- Métriques de santé -->
+            <div class="main-card p-4 mb-4 animate-slide-up" style="animation-delay: 0.1s">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-heart-pulse text-primary me-2"></i>Signes Vitaux en Temps Réel</h5>
+                    <div class="d-flex align-items-center">
+                        <span class="status-indicator status-online"></span>
+                        <small class="text-muted">Connecté</small>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="metric-card status-@(Model.HealthMetrics.HeartRate > 100 ? "danger" : Model.HealthMetrics.HeartRate > 85 ? "warning" : "normal")">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="icon-box bg-danger bg-opacity-10 text-danger">
+                                        <i class="bi bi-heart"></i>
+                                    </div>
+                                    <small class="text-muted d-block">Pouls</small>
+                                    <div class="metric-value">@Model.HealthMetrics.HeartRate</div>
+                                    <small class="text-muted">bpm</small>
+                                </div>
+                                <span class="metric-trend trend-@(Model.HealthMetrics.HeartRate > 80 ? "up" : "down")">
+                                    <i class="bi bi-arrow-@(Model.HealthMetrics.HeartRate > 80 ? "up" : "down") me-1"></i>
+                                    @(Model.HealthMetrics.HeartRate > 80 ? "+5%" : "-2%")
+                                </span>
+                            </div>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-danger" style="width: @(Math.Min(Model.HealthMetrics.HeartRate, 100))%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="metric-card status-@(Model.HealthMetrics.Temperature > 37.5 ? "danger" : "normal")">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                                        <i class="bi bi-thermometer-high"></i>
+                                    </div>
+                                    <small class="text-muted d-block">Température</small>
+                                    <div class="metric-value">@Model.HealthMetrics.Temperature</div>
+                                    <small class="text-muted">°C</small>
+                                </div>
+                                <span class="metric-trend trend-stable">
+                                    <i class="bi bi-dash me-1"></i>
+                                    Stable
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="metric-card status-normal">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                                        <i class="bi bi-heart-pulse"></i>
+                                    </div>
+                                    <small class="text-muted d-block">Tension Artérielle</small>
+                                    <div class="metric-value">@Model.HealthMetrics.BloodPressure</div>
+                                    <small class="text-muted">mmHg</small>
+                                </div>
+                                <span class="metric-trend trend-down">
+                                    <i class="bi bi-arrow-down me-1"></i>
+                                    -3%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="metric-card status-@(Model.HealthMetrics.OxygenSaturation < 95 ? "warning" : "normal")">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="icon-box bg-info bg-opacity-10 text-info">
+                                        <i class="bi bi-lungs"></i>
+                                    </div>
+                                    <small class="text-muted d-block">Saturation O₂</small>
+                                    <div class="metric-value">@Model.HealthMetrics.OxygenSaturation</div>
+                                    <small class="text-muted">%</small>
+                                </div>
+                                <span class="metric-trend trend-up">
+                                    <i class="bi bi-arrow-up me-1"></i>
+                                    +1%
+                                </span>
+                            </div>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-info" style="width: @Model.HealthMetrics.OxygenSaturation%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphique avancé -->
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-graph-up-arrow me-2"></i>Évolution sur 7 jours</h6>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-primary active" data-period="week">7j</button>
+                            <button type="button" class="btn btn-outline-primary" data-period="month">30j</button>
+                            <button type="button" class="btn btn-outline-primary" data-period="year">1an</button>
+                        </div>
+                    </div>
+                    <canvas id="healthChart" height="120"></canvas>
+                </div>
+            </div>
+
+            <!-- Dernier triage avec détails -->
+            <div class="main-card p-4 animate-slide-up" style="animation-delay: 0.2s">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h5 class="fw-bold mb-1"><i class="bi bi-clipboard2-pulse text-primary me-2"></i>Résultat du Dernier Triage</h5>
+                        <small class="text-muted">Effectué le @DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy à HH:mm")</small>
+                    </div>
+                    @if (Model.LastTriageResult != null)
+                    {
+                        <div class="risk-badge risk-@(Model.LastTriageResult.Level.ToLower())">
+                            <i class="bi bi-@(Model.LastTriageResult.Level == "Urgent" ? "exclamation-triangle" : "check-circle") me-2"></i>
+                            @Model.LastTriageResult.Level
+                        </div>
+                    }
+                </div>
+
+                @if (Model.LastTriageResult != null)
+                {
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-4">
+                                <h6 class="fw-bold text-muted mb-2">Symptômes rapportés :</h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach (var symptom in Model.LastTriageResult.Symptoms.Split(',').Take(4))
+                                    {
+                                        <span class="badge bg-light text-dark border">@symptom.Trim()</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="alert @(Model.LastTriageResult.Level == "Urgent" ? "alert-danger" : "alert-success") rounded-3">
+                                <div class="d-flex">
+                                    <i class="bi bi-@(Model.LastTriageResult.Level == "Urgent" ? "exclamation-octagon" : "info-circle") me-3 fs-4"></i>
+                                    <div>
+                                        <h6 class="fw-bold">Recommandation :</h6>
+                                        <p class="mb-0">@Model.LastTriageResult.Recommendation</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="text-center p-4 rounded-3" style="background: linear-gradient(135deg, var(--primary-light) 0%, #e0e7ff 100%);">
+                                <div class="display-4 fw-bold text-primary mb-2">@Model.LastTriageResult.Score%</div>
+                                <div class="fw-bold text-muted mb-3">INDICE DE RISQUE</div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar @(Model.LastTriageResult.Score > 70 ? "bg-danger" : Model.LastTriageResult.Score > 40 ? "bg-warning" : "bg-success")"
+                                         style="width: @Model.LastTriageResult.Score%"></div>
+                                </div>
+                                <small class="text-muted mt-2 d-block">Basé sur l'analyse IA</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="row text-center">
+                            <div class="col">
+                                <div class="text-muted small">Délai estimé</div>
+                                <div class="fw-bold">@(Model.LastTriageResult.Level == "Urgent" ? "Immédiat" : "24-48h")</div>
+                            </div>
+                            <div class="col">
+                                <div class="text-muted small">Spécialité recommandée</div>
+                                <div class="fw-bold">@(Model.LastTriageResult.Score > 70 ? "Urgences" : "Médecin généraliste")</div>
+                            </div>
+                            <div class="col">
+                                <div class="text-muted small">Suivi requis</div>
+                                <div class="fw-bold">@(Model.LastTriageResult.Score > 50 ? "Oui" : "Non")</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Colonne latérale -->
+        <div class="col-lg-4">
+            <!-- Rendez-vous à venir -->
+            <!-- Rendez-vous à venir - Section corrigée -->
+            <div class="main-card p-4 mb-4 animate-slide-up" style="animation-delay: 0.3s">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-calendar-check text-primary me-2"></i>Rendez-vous à Venir</h5>
+                    <span class="badge bg-primary">@Model.UpcomingAppointments.Count()</span>
+                </div>
+
+                @if (Model.UpcomingAppointments.Any())
+                {
+                    <div class="timeline">
+                        @foreach (var app in Model.UpcomingAppointments)
+                        {
+                            <div class="timeline-item">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="fw-bold mb-1">
+                                            @if (app.Doctor != null)
+                                            {
+                                                <text>Dr. @app.Doctor.Name</text>
+                                            }
+                                            else
+                                            {
+                                                <text>Médecin généraliste</text>
+                                            }
+                                        </h6>
+                                        <p class="text-muted small mb-1">@app.Reason</p>
+                                    </div>
+                                    <span class="badge bg-soft-primary text-primary px-3 py-1">
+                                        @app.Date.ToString("dd/MM")
+                                        @if (app.StartTime.HasValue)
+                                        {
+                                            <text>à @app.StartTime.Value.ToString(@"hh\:mm")</text>
+                                        }
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <!-- Solution pour gérer l'absence de Location -->
+                                    <span class="small text-muted">
+                                        <i class="bi bi-geo-alt me-1"></i>
+                                        @{
+                                            // Utiliser une logique conditionnelle pour la localisation
+                                            var locationText = "Cabinet médical";
+                                            if (app.Doctor != null && !string.IsNullOrEmpty(app.Doctor.Specialty))
+                                            {
+                                                locationText = app.Doctor.Specialty.Contains("urgent") ?
+                                                "Service d'urgences" : "Cabinet médical";
+                                            }
+                                            @locationText
+                                        }
+                                    </span>
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                        <i class="bi bi-camera-video me-1"></i>Rejoindre
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <button class="btn btn-primary w-100 mt-3 rounded-pill">
+                        <i class="bi bi-plus-circle me-2"></i>Nouveau rendez-vous
+                    </button>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-calendar-x display-1 text-muted mb-3"></i>
+                        <p class="text-muted">Aucun rendez-vous prévu</p>
+                        <button class="btn btn-outline-primary rounded-pill">Planifier un RDV</button>
+                    </div>
+                }
+            </div>
+
+            <!-- Médecins en ligne -->
+            <div class="main-card p-4 animate-slide-up" style="animation-delay: 0.4s">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-activity text-primary me-2"></i>Équipe Médicale en Ligne</h5>
+                    <span class="status-indicator status-online"></span>
+                </div>
+
+                @foreach (var doc in Model.DoctorAvailability)
+                {
+                    <div class="doctor-card">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="doctor-avatar me-3">
+                                    @doc.Name.Split(' ').Select(n => n[0]).Take(2).Aggregate("", (a, b) => a + b)
+                                </div>
+                                <div>
+                                    <div class="fw-bold">Dr. @doc.Name</div>
+                                    <div class="small text-muted">@doc.Specialty</div>
+                                    <div class="small d-flex align-items-center">
+                                        <span class="status-indicator status-online me-1"></span>
+                                        <span class="text-success">Disponible</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-outline-primary rounded-circle"
+                                        data-bs-toggle="tooltip"
+                                        title="Message instantané">
+                                    <i class="bi bi-chat"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success rounded-circle"
+                                        data-bs-toggle="tooltip"
+                                        title="Appel vidéo">
+                                    <i class="bi bi-camera-video"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2 d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="bi bi-clock me-1"></i>Dernière activité : 5 min
+                            </small>
+                            <span class="badge bg-light text-dark">
+                                <i class="bi bi-star-fill text-warning me-1"></i>4.8
+                            </span>
+                        </div>
+                    </div>
+                }
+
+                <div class="mt-3 text-center">
+                    <a href="#" class="text-primary text-decoration-none small">
+                        <i class="bi bi-search me-1"></i>Explorer tous les spécialistes →
+                    </a>
+                </div>
+            </div>
+
+            <!-- Widget d'alerte rapide -->
+            <div class="main-card p-4 mt-4 animate-slide-up" style="animation-delay: 0.5s">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-box bg-danger bg-opacity-10 text-danger me-3">
+                        <i class="bi bi-bell"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Alerte Rapide</h6>
+                        <small class="text-muted">En cas d'urgence</small>
+                    </div>
+                </div>
+                <button class="btn btn-danger w-100 rounded-pill py-2 mb-2">
+                    <i class="bi bi-telephone me-2"></i>Appel d'Urgence
+                </button>
+                <button class="btn btn-outline-danger w-100 rounded-pill py-2">
+                    <i class="bi bi-geo-alt me-2"></i>Localiser les urgences
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Initialisation des tooltips Bootstrap
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        // Graphique santé avancé
+        const ctx = document.getElementById('healthChart').getContext('2d');
+        const healthChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                datasets: [
+                    {
+                        label: 'Pouls (BPM)',
+                        data: [68, 72, 70, 75, @Model.HealthMetrics.HeartRate, 69, 67],
+                        borderColor: '#e71d36',
+                        backgroundColor: 'rgba(231, 29, 54, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#e71d36',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'Température (°C)',
+                        data: [36.5, 36.6, 36.7, @Model.HealthMetrics.Temperature, 36.8, 36.7, 36.6],
+                        borderColor: '#ff9f1c',
+                        backgroundColor: 'rgba(255, 159, 28, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#ff9f1c',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        padding: 12,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'nearest'
+                }
+            }
+        });
+
+        // Gestion des périodes du graphique
+        document.querySelectorAll('[data-period]').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('[data-period]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+
+                const period = this.dataset.period;
+                let labels, data1, data2;
+
+                switch(period) {
+                    case 'week':
+                        labels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+                        data1 = [68, 72, 70, 75, @Model.HealthMetrics.HeartRate, 69, 67];
+                        data2 = [36.5, 36.6, 36.7, @Model.HealthMetrics.Temperature, 36.8, 36.7, 36.6];
+                        break;
+                    case 'month':
+                        labels = Array.from({length: 30}, (_, i) => i + 1);
+                        data1 = Array.from({length: 30}, () => Math.floor(Math.random() * 20) + 65);
+                        data2 = Array.from({length: 30}, () => 36.5 + Math.random() * 0.6);
+                        break;
+                    case 'year':
+                        labels = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+                        data1 = [72, 71, 70, 69, 68, 70, 72, 71, 70, 69, 68, 70];
+                        data2 = [36.6, 36.7, 36.8, 36.9, 37.0, 36.8, 36.7, 36.6, 36.7, 36.8, 36.9, 36.7];
+                        break;
+                }
+
+                healthChart.data.labels = labels;
+                healthChart.data.datasets[0].data = data1;
+                healthChart.data.datasets[1].data = data2;
+                healthChart.update();
+            });
+        });
+
+        // Animation au défilement
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observer les cartes pour l'animation
+        document.querySelectorAll('.main-card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Mise à jour en temps réel de l'heure
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('fr-FR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.querySelector('.glass-panel .fw-bold').textContent = timeString;
+        }
+
+        setInterval(updateTime, 60000);
+
+        // Effet de survol sur les boutons d'action
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                const icon = this.querySelector('.icon');
+                icon.style.transform = 'scale(1.1) rotate(5deg)';
+            });
+
+            button.addEventListener('mouseleave', function() {
+                const icon = this.querySelector('.icon');
+                icon.style.transform = 'scale(1) rotate(0deg)';
+            });
+        });
+
+        // Simulation de notification
+        setTimeout(() => {
+            const notification = document.createElement('div');
+            notification.className = 'position-fixed bottom-0 end-0 m-3 alert alert-success alert-dismissible fade show shadow-lg';
+            notification.style.maxWidth = '350px';
+            notification.innerHTML = `
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill text-success fs-4 me-3"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Données synchronisées</h6>
+                        <p class="small mb-0">Vos signes vitaux ont été mis à jour</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }, 3000);
+    </script>
+}

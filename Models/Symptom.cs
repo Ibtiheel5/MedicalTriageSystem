@@ -1,40 +1,34 @@
-﻿// Models/Symptom.cs
+﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedicalTriageSystem.Models
 {
-    [Table("Symptoms")]
     public class Symptom
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-
-        [Required]
         public int PatientId { get; set; }
 
         [Required]
-        [Column(TypeName = "text")]
-        public string Name { get; set; } = string.Empty; // ✅ Colonne Name (text)
+        [StringLength(100)]
+        public string Name { get; set; } = string.Empty;
 
-        [Column(TypeName = "text")]
-        public string Description { get; set; } = string.Empty; // ✅ Colonne Description (text)
+        public string Description { get; set; } = string.Empty;
 
-        [Required]
-        public int Severity { get; set; } = 3; // ✅ Colonne Severity (integer), 1-5 échelle
+        [Range(1, 10)]
+        public int Severity { get; set; }
 
-        [Column(TypeName = "text")]
-        public string Category { get; set; } = "General"; // ✅ Colonne Category (text)
+        public DateTime Date { get; set; }
+        public TimeSpan? Time { get; set; }
+        public string Location { get; set; } = string.Empty;
+        public string Duration { get; set; } = string.Empty;
+        public string Frequency { get; set; } = string.Empty;
+        public string Triggers { get; set; } = string.Empty;
+        public string ReliefFactors { get; set; } = string.Empty;
+        public string AssociatedSymptoms { get; set; } = string.Empty;
 
-        [Required]
-        [Column(TypeName = "timestamp without time zone")]
-        public DateTime Date { get; set; } = DateTime.UtcNow; // ✅ Colonne Date (pas StartDate)
-
-        // ⚠️ PAS de AggravatingFactors, RelievingFactors, StartDate, EndDate, etc.
-        // Ces colonnes n'existent pas dans votre table
+        public DateTime CreatedAt { get; set; }
 
         // Navigation property
-        public virtual Patient Patient { get; set; } = null!;
+        public Patient Patient { get; set; }
     }
 }

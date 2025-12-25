@@ -1,9 +1,6 @@
-﻿using MedicalTriageSystem.Data;
-using MedicalTriageSystem.Models;
-using MedicalTriageSystem.Models.ViewModels;
+﻿using MedicalTriageSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace MedicalTriageSystem.Controllers
@@ -11,125 +8,87 @@ namespace MedicalTriageSystem.Controllers
     [Authorize(Roles = "Patient")]
     public class PatientDashboardController : Controller
     {
-        private readonly ApplicationDbContext _context;
-
-        public PatientDashboardController(ApplicationDbContext context)
+        public IActionResult Dashboard()
         {
-            _context = context;
-        }
-
-        // Redirection depuis /Patient/Dashboard ou /Patient/Index
-        public IActionResult Index()
-        {
-            return RedirectToAction("Dashboard");
-        }
-
-        /// <summary>
-        /// Action principale : Affiche le dashboard du patient connecté
-        /// Utilise le même style que le dashboard admin (cartes, tableaux, etc.)
-        /// </summary>
-        public async Task<IActionResult> Dashboard()
-        {
-            // Récupérer l'ID de l'utilisateur connecté
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            var model = new PatientDashboardSimpleViewModel
             {
-                TempData["ErrorMessage"] = "Erreur d'authentification. Veuillez vous reconnecter.";
-                return RedirectToAction("Login", "Auth");
-            }
-
-            // Charger le patient avec toutes les données nécessaires
-            var patient = await _context.Patients
-                .Include(p => p.TriageResults)
-                .Include(p => p.Symptoms)
-                .Include(p => p.Appointments)
-                    .ThenInclude(a => a.Doctor)
-                .FirstOrDefaultAsync(p => p.UserId == userId);
-
-            // Si le patient n'existe pas encore (première connexion), le créer automatiquement
-            if (patient == null)
-            {
-                patient = new Patient
+                PatientInfo = new PatientInfo
                 {
-                    UserId = userId,
-                    Name = User.Identity?.Name ?? "Patient Anonyme",
-                    Email = User.FindFirst(ClaimTypes.Email)?.Value ?? "",
-                    Phone = User.FindFirst(ClaimTypes.MobilePhone)?.Value,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-
-                _context.Patients.Add(patient);
-                await _context.SaveChangesAsync();
-            }
-
-            // === Calcul des statistiques personnelles ===
-            var totalTriages = patient.TriageResults?.Count ?? 0;
-            var urgentCasesCount = patient.TriageResults?.Count(tr => tr.Level == "Urgent") ?? 0;
-            var todayTriages = patient.TriageResults?
-                .Count(tr => tr.CreatedAt.Date == DateTime.UtcNow.Date) ?? 0;
-            var weekTriages = patient.TriageResults?
-                .Count(tr => tr.CreatedAt >= DateTime.UtcNow.AddDays(-7)) ?? 0;
-
-            var stats = new DashboardStatistics
-            {
-                TotalTriages = totalTriages,
-                UrgentCases = urgentCasesCount,
-                TodayTriages = todayTriages,
-                WeekTriages = weekTriages,
-                AvgTriageTime = TimeSpan.Zero // Peut être calculé plus tard si besoin
+                    Id = 123,
+                    Name = User?.Identity?.Name ?? "Patient",
+                    Age = 35,
+                    Gender = "Masculin",
+                    BloodType = "O+",
+                    Allergies = "Pollen, Pénicilline",
+                    Email = "patient@email.com",
+                    Phone = "06 12 34 56 78",
+                    CreatedAt = DateTime.Now
+                },
+                LastTriageResult = new TriageResultInfo
+                {
+                    Level = "Moyen",
+                    Score = 45,
+                    Recommendation = "Consulter dans les 48h",
+                    Symptoms = "Fièvre, toux",
+                    CreatedAt = DateTime.Now.AddDays(-2)
+                },
+                HealthMetrics = new HealthMetrics
+                {
+                    HeartRate = 72,
+                    BloodPressure = 120,
+                    Temperature = 36.8,
+                    OxygenSaturation = 98
+                },
+                PatientStats = new PatientStatistics
+                {
+                    TotalTriages = 5,
+                    UpcomingAppointmentsCount = 2,
+                    MedicalRecordsCount = 3,
+                    PrescriptionsCount = 4,
+                    TotalSymptoms = 12,
+                    UrgentCasesCount = 1
+                },
+                UpcomingAppointments = new List<AppointmentInfo>
+                {
+                    new() {
+                        Date = DateTime.Now.AddDays(3),
+                        StartTime = TimeSpan.FromHours(14),
+                        Reason = "Consultation de suivi",
+                        Doctor = new DoctorInfo {
+                            Name = "Dr. Bernard",
+                            Specialty = "Généraliste"
+                        },
+                        Status = "Confirmed",
+                        Notes = "Apporter les derniers examens"
+                    }
+                },
+                RecentSymptoms = new List<SymptomInfo>
+                {
+                    new() {
+                        Name = "Maux de tête",
+                        Description = "Douleur frontale modérée",
+                        Date = DateTime.Now.AddDays(-1),
+                        Location = "Front",
+                        Duration = "2 heures",
+                        Severity = 5
+                    }
+                },
+                DoctorAvailability = new List<DoctorInfo>
+                {
+                    new() {
+                        Id = 1,
+                        Name = "Dr. Bernard",
+                        Specialty = "Généraliste",
+                        IsAvailable = true,
+                        Qualifications = "Médecin généraliste diplômé",
+                        Availability = "Lun-Ven: 9h-18h",
+                        ConsultationFee = "50€"
+                    }
+                },
+                UrgentCasesList = new List<TriageResultInfo>()
             };
 
-            // === Cas urgents personnels (les 5 derniers) ===
-            var urgentCases = patient.TriageResults?
-                .Where(tr => tr.Level == "Urgent")
-                .OrderByDescending(tr => tr.CreatedAt)
-                .Take(5)
-                .ToList() ?? new List<TriageResult>();
-
-            // === Médecins disponibles (commun à tous, comme dans le dashboard admin) ===
-            var doctorAvailability = await _context.Doctors
-                .Where(d => d.IsAvailable)
-                .OrderBy(d => d.Name)
-                .Take(5)
-                .Select(d => new Doctor
-                {
-                    Id = d.Id,
-                    Name = d.Name,
-                    Specialty = d.Specialty,
-                    IsAvailable = d.IsAvailable
-                })
-                .ToListAsync();
-
-            // === Construction du ViewModel ===
-            var viewModel = new PatientDashboardViewModel
-            {
-                Patient = patient,
-                LastTriage = patient.TriageResults?
-                    .OrderByDescending(t => t.CreatedAt)
-                    .FirstOrDefault(),
-
-                UpcomingAppointments = patient.Appointments?
-                    .Where(a => a.Date >= DateTime.UtcNow.Date)
-                    .OrderBy(a => a.Date)
-                    .ThenBy(a => a.StartTime)
-                    .Take(5)
-                    .ToList() ?? new List<Appointment>(),
-
-                RecentSymptoms = patient.Symptoms?
-                    .OrderByDescending(s => s.Date)
-                    .Take(10)
-                    .ToList() ?? new List<Symptom>(),
-
-                // Données pour le style "admin-like"
-                Statistics = stats,
-                UrgentCases = urgentCases,
-                DoctorAvailability = doctorAvailability
-            };
-
-            ViewData["Title"] = "Mon Tableau de Bord";
-
-            return View(viewModel);
+            return View("PatientDashboard", model);
         }
     }
 }

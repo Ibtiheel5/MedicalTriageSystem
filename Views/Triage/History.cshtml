@@ -1,0 +1,116 @@
+﻿@model IEnumerable<MedicalTriageSystem.Models.TriageResult>
+
+@{
+    ViewData["Title"] = "Historique Médical";
+    var isDoctor = User.IsInRole("Doctor");
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary">
+                <i class="bi bi-clock-history me-2"></i>@(isDoctor ? "Suivi Global des Triages" : "Mon Historique de Santé")
+            </h2>
+            <p class="text-muted">Consultez et gérez les évaluations médicales enregistrées.</p>
+        </div>
+        @if (!isDoctor)
+        {
+            <a asp-action="Create" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i class="fas fa-plus me-2"></i>Nouveau Triage
+            </a>
+        }
+    </div>
+
+    @if (isDoctor)
+    {
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="medical-card border-start border-danger border-4 p-3">
+                    <small class="text-muted fw-bold">URGENCES ACTIVES</small>
+                    <h2 class="text-danger mb-0">@Model.Count(x => x.Level == "Urgent")</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="medical-card border-start border-primary border-4 p-3">
+                    <small class="text-muted fw-bold">TOTAL EXAMENS</small>
+                    <h2 class="text-primary mb-0">@Model.Count()</h2>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="medical-card p-0 overflow-hidden shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 datatable">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Date & Heure</th>
+                        @if (isDoctor)
+                        {
+                            <th>Patient</th>
+                        }
+                        <th>Symptômes</th>
+                        <th>Niveau</th>
+                        <th>Score</th>
+                        <th class="text-end pe-4">Analyse</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="@(item.Level == "Urgent" ? "table-danger-light" : "")">
+                            <td class="ps-4">
+                                <div class="fw-bold">@item.CreatedAt.ToString("dd/MM/yyyy")</div>
+                                <div class="small text-muted">@item.CreatedAt.ToString("HH:mm")</div>
+                            </td>
+                            @if (isDoctor)
+                            {
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="patient-avatar me-2" style="width: 35px; height: 35px; font-size: 0.8rem;">
+                                            @item.Patient?.Name?.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <span class="fw-medium">@item.Patient?.Name</span>
+                                    </div>
+                                </td>
+                            }
+                            <td>
+                                <span class="d-inline-block text-truncate" style="max-width: 200px;" data-bs-toggle="tooltip" title="@item.Symptoms">
+                                    @item.Symptoms
+                                </span>
+                            </td>
+                            <td>
+                                @if (item.Level == "Urgent")
+                                {
+                                    <span class="badge emergency-alert medical-badge">🚨 URGENT</span>
+                                }
+                                else if (item.Level == "Moyen")
+                                {
+                                    <span class="badge bg-warning text-dark medical-badge">⚠️ MOYEN</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success medical-badge">✅ FAIBLE</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="progress flex-grow-1 me-2" style="height: 6px; min-width: 50px;">
+                                        <div class="progress-bar @(item.Score >= 75 ? "bg-danger" : (item.Score >= 40 ? "bg-warning" : "bg-success"))"
+                                             role="progressbar" style="width: @item.Score%"></div>
+                                    </div>
+                                    <small class="fw-bold">@item.Score%</small>
+                                </div>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a asp-action="Result" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    Détails
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

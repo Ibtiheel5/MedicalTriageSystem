@@ -1,39 +1,29 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace MedicalTriageSystem.Models
 {
-    [Table("TriageResults")]
-    // Models/TriageResult.cs - VERSION CORRECTE
     public class TriageResult
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-
-        [Required]
         public int PatientId { get; set; }
-
         public int? DoctorId { get; set; }
 
-        [Required]
+        [Range(0, 100)]
         public int Score { get; set; }
 
         [Required]
-        [StringLength(20)]
-        public string Level { get; set; } = "Normal";
+        public string Level { get; set; } = string.Empty;
 
-        [Required]
         public string Recommendation { get; set; } = string.Empty;
+        public string Symptoms { get; set; } = string.Empty;
+        public string Notes { get; set; } = string.Empty;
 
-        // ⬇️⬇️⬇️ IMPORTANT: Utilisez CreatedAt, PAS Date ⬇️⬇️⬇️
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-        // ⬇️⬇️⬇️ SUPPRIMEZ cette ligne si elle existe ⬇️⬇️⬇️
-        // public DateTime Date { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? ReviewedAt { get; set; }
 
         // Navigation properties
-        public virtual Patient Patient { get; set; } = null!;
-        public virtual Doctor? Doctor { get; set; }
+        public Patient Patient { get; set; }
+        public Doctor Doctor { get; set; }
     }
 }
